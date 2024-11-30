@@ -1,4 +1,4 @@
-From 249ea7eb10a3dc8b4683390b9876764c58eb82bc Mon Sep 17 00:00:00 2001
+From e7605941ac8ae1a1eaee455fbef42221e9cbc134 Mon Sep 17 00:00:00 2001
 From: Xtr126 <80520774+Xtr126@users.noreply.github.com>
 Date: Thu, 11 Jul 2024 08:03:32 +0530
 Subject: [PATCH 5/6] Add toggle key
@@ -11,7 +11,7 @@ Subject: [PATCH 5/6] Add toggle key
  create mode 100644 togglekey.h
 
 diff --git a/seat.c b/seat.c
-index dd91311..36bde68 100644
+index 4d6b6e4..f31d583 100644
 --- a/seat.c
 +++ b/seat.c
 @@ -14,6 +14,7 @@
@@ -188,5 +188,5 @@ index 0000000..b959476
 +*/
 +#define TOGGLEKEY "KEY_F11"
 -- 
-2.47.0
+2.47.1
 
