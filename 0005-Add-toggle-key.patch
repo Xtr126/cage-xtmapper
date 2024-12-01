@@ -1,4 +1,4 @@
-From e7605941ac8ae1a1eaee455fbef42221e9cbc134 Mon Sep 17 00:00:00 2001
+From 3480ad9075c6548a378ca83f53155297b95a66c8 Mon Sep 17 00:00:00 2001
 From: Xtr126 <80520774+Xtr126@users.noreply.github.com>
 Date: Thu, 11 Jul 2024 08:03:32 +0530
 Subject: [PATCH 5/6] Add toggle key
@@ -11,7 +11,7 @@ Subject: [PATCH 5/6] Add toggle key
  create mode 100644 togglekey.h
 
 diff --git a/seat.c b/seat.c
-index 4d6b6e4..f31d583 100644
+index 1af3506..9135721 100644
 --- a/seat.c
 +++ b/seat.c
 @@ -14,6 +14,7 @@
@@ -62,7 +62,7 @@ index 4d6b6e4..f31d583 100644
 +
 +	if (seat->xtmapper_disabled) {
 +		wlr_seat_pointer_notify_axis(seat->seat, event->time_msec, event->orientation, event->delta,
-+						event->delta_discrete, event->source);
++						event->delta_discrete, event->source, event->relative_direction);
 +		wlr_idle_notifier_v1_notify_activity(seat->server->idle, seat->seat);
 +	} else {
 +		int delta;
@@ -74,9 +74,9 @@ index 4d6b6e4..f31d583 100644
 +			return;
  
 -	printf("/dev/input/wl_pointer_axis: EV_REL %s %d\n",
--      (event->orientation == WLR_AXIS_ORIENTATION_VERTICAL) ? "REL_WHEEL" : "REL_HWHEEL", delta);
+-      (event->orientation == WL_POINTER_AXIS_VERTICAL_SCROLL) ? "REL_WHEEL" : "REL_HWHEEL", delta);
 +		printf("/dev/input/wl_pointer_axis: EV_REL %s %d\n",
-+		(event->orientation == WLR_AXIS_ORIENTATION_VERTICAL) ? "REL_WHEEL" : "REL_HWHEEL", delta);
++		(event->orientation == WL_POINTER_AXIS_VERTICAL_SCROLL) ? "REL_WHEEL" : "REL_HWHEEL", delta);
 +	}
  }
  
@@ -86,7 +86,7 @@ index 4d6b6e4..f31d583 100644
 +	struct cg_seat *seat = wl_container_of(listener, seat, cursor_button);
  	struct wlr_pointer_button_event *event = data;
  
--	int action = event->state == WLR_BUTTON_PRESSED ? 1 : 0;
+-	int action = event->state == WL_POINTER_BUTTON_STATE_PRESSED ? 1 : 0;
 -    const char *code = event->button == BTN_LEFT ? "BTN_LEFT" : "BTN_RIGHT";
 -    printf("/dev/input/wl_pointer_button: EV_KEY %s %d\n", code, action);
 +	if (seat->xtmapper_disabled) {
@@ -95,7 +95,7 @@ index 4d6b6e4..f31d583 100644
 +					seat->cursor->y);
 +		wlr_idle_notifier_v1_notify_activity(seat->server->idle, seat->seat);
 +	} else {
-+		int action = event->state == WLR_BUTTON_PRESSED ? 1 : 0;
++		int action = event->state == WL_POINTER_BUTTON_STATE_PRESSED ? 1 : 0;
 +		const char *code = event->button == BTN_LEFT ? "BTN_LEFT" : "BTN_RIGHT";
 +		printf("/dev/input/wl_pointer_button: EV_KEY %s %d\n", code, action);
 +	}

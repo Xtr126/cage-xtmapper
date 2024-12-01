@@ -1,4 +1,4 @@
-From f11dfe493ca74fc630c40e9d35b428db0d1c68c5 Mon Sep 17 00:00:00 2001
+From 8f95ca82f2b68194dd5f63c80b676658e5d3e145 Mon Sep 17 00:00:00 2001
 From: Xtr126 <80520774+Xtr126@users.noreply.github.com>
 Date: Fri, 26 Apr 2024 00:47:17 +0530
 Subject: [PATCH 2/6] feat: print keyboard and mouse keys
@@ -11,7 +11,7 @@ fix: round to integer
  1 file changed, 39 insertions(+), 20 deletions(-)
 
 diff --git a/seat.c b/seat.c
-index cdf8798..4d6b6e4 100644
+index cdf8798..1af3506 100644
 --- a/seat.c
 +++ b/seat.c
 @@ -42,6 +42,7 @@
@@ -76,7 +76,7 @@ index cdf8798..4d6b6e4 100644
 -				     event->delta_discrete, event->source, event->relative_direction);
 -	wlr_idle_notifier_v1_notify_activity(seat->server->idle, seat->seat);
 +	printf("/dev/input/wl_pointer_axis: EV_REL %s %d\n",
-+      (event->orientation == WLR_AXIS_ORIENTATION_VERTICAL) ? "REL_WHEEL" : "REL_HWHEEL", delta);
++      (event->orientation == WL_POINTER_AXIS_VERTICAL_SCROLL) ? "REL_WHEEL" : "REL_HWHEEL", delta);
  }
  
  static void
@@ -89,7 +89,7 @@ index cdf8798..4d6b6e4 100644
 -	press_cursor_button(seat, &event->pointer->base, event->time_msec, event->button, event->state, seat->cursor->x,
 -			    seat->cursor->y);
 -	wlr_idle_notifier_v1_notify_activity(seat->server->idle, seat->seat);
-+	int action = event->state == WLR_BUTTON_PRESSED ? 1 : 0;
++	int action = event->state == WL_POINTER_BUTTON_STATE_PRESSED ? 1 : 0;
 +    const char *code = event->button == BTN_LEFT ? "BTN_LEFT" : "BTN_RIGHT";
 +    printf("/dev/input/wl_pointer_button: EV_KEY %s %d\n", code, action);
  }
