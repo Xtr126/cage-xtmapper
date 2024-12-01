@@ -41,7 +41,7 @@ export XTMAPPER_HEIGHT=${XTMAPPER_HEIGHT:-720}
 waydroid container stop
 systemctl restart waydroid-container.service
 
-su "$user" --command "./build/cage waydroid show-full-ui" | (
+su "$user" --command "cage_xtmapper waydroid show-full-ui" | (
 	while [[ -z $(waydroid shell getprop sys.boot_completed) ]]; do
 		sleep 1;
 	done;
