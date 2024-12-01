@@ -1,0 +1,6 @@
+[wrap-file]
+directory = libxkbcommon-1.7.0
+source_filename = libxkbcommon-1.7.0.tar.xz
+
+[provide]
+xkbcommon = dep_libxkbcommon

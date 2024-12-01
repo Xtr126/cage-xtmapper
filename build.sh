@@ -47,13 +47,13 @@ apply_cage_patches
 apply_wlroots_patches() {
     cd subprojects/wlroots/
     echo "Applying wlroots patches"
-    for patch in "$parent_dir"/wlroots/*.patch; do        
+    for patch in "$parent_dir"/wlroots_patches/*.patch; do        
         patch -p1 -i "$patch"
     done
     mkdir -p subprojects/packagefiles
 
-    ln -s "$parent_dir"/wayland.wrap ./subprojects/    
-    ln -s "$parent_dir"/wayland-1.23.1.tar.xz ./subprojects/packagefiles/  
+    ln -s "$parent_dir"/meson_wrapfiles/* ./subprojects/    
+    ln -s "$parent_dir"/wlroots_deps/* ./subprojects/packagefiles/  
 }
 ( apply_wlroots_patches )
 
