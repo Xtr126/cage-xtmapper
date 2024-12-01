@@ -16,12 +16,13 @@ jobs:
         sudo sed -i 's/^Types: deb$/Types: deb deb-src/' /etc/apt/sources.list.d/ubuntu.sources
         sudo apt update
         sudo apt build-dep wlroots -y
-        sudo apt install gcc-14
 
     - uses: actions/checkout@v4
 
     - name: Execute build script
       run: ./build.sh
+      env: 
+        CC: gcc-14
 
     - uses: actions/upload-artifact@v4
       with:
