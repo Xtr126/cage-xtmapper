@@ -45,15 +45,25 @@ apply_cage_patches
 )
 
 apply_wlroots_patches() {
+    cd subprojects/wlroots/
     echo "Applying wlroots patches"
     for patch in "$parent_dir"/wlroots/*.patch; do        
-        patch -d subprojects/wlroots/ -p1 -i "$patch"
+        patch -p1 -i "$patch"
     done
-}
-apply_wlroots_patches
+    mkdir -p subprojects/packagefiles
 
-meson setup build --buildtype=release -Ddefault_library=static -Dprefix=/installed
+    ln -s "$parent_dir"/wayland.wrap ./subprojects/    
+    ln -s "$parent_dir"/wayland-1.23.1.tar.xz ./subprojects/packagefiles/  
+}
+( apply_wlroots_patches )
+
+meson setup build \
+    --buildtype=release \
+    -Ddefault_library=static \
+    -Dprefix=/installed 
+
 meson compile -C build
+
 meson install -C build --destdir "$parent_dir"/build
 
 
