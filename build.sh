@@ -1,4 +1,20 @@
 #!/bin/bash -v
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+    --c11-patch)
+        shift
+        c11_patch=true
+        ;;
+    *)
+	echo "Invalid argument"
+        exit 1
+	;;
+    esac
+    shift
+done
+
+
 exit_error() {
     echo -e "$1"
     exit 1
@@ -54,6 +70,8 @@ apply_wlroots_patches() {
 
     ln -s "$parent_dir"/meson_wrapfiles/* ./subprojects/    
     ln -s "$parent_dir"/wlroots_deps/* ./subprojects/packagefiles/  
+
+    [ $c11_patch == true ] && sed -i "s/'c_std=' + (meson.version().version_compare('>=1.3.0') ? 'c23,c11' : 'c11')/'c_std=' + (meson.version().version_compare('>1.3.2') ? 'c23,c11' : 'c11')/" meson.build
 }
 ( apply_wlroots_patches )
 
