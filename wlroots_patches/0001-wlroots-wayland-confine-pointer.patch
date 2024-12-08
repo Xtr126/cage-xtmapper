@@ -1,7 +1,7 @@
-From 879d67b18d5f305b45b9221726c4de67a4b68d2d Mon Sep 17 00:00:00 2001
+From ca7c848ee3f2bdee316b69022e505c792fbb3919 Mon Sep 17 00:00:00 2001
 From: Xtr126 <80520774+Xtr126@users.noreply.github.com>
 Date: Thu, 2 May 2024 11:20:35 +0530
-Subject: [PATCH 1/4] confine pointer
+Subject: [PATCH 1/1] confine pointer
 
 ---
  backend/wayland/backend.c   | 4 ++++
@@ -11,18 +11,18 @@ Subject: [PATCH 1/4] confine pointer
  4 files changed, 10 insertions(+)
 
 diff --git a/backend/wayland/backend.c b/backend/wayland/backend.c
-index 9a74e691..8cef72c2 100644
+index 9f78b6f1..fd71a124 100644
 --- a/backend/wayland/backend.c
 +++ b/backend/wayland/backend.c
-@@ -29,6 +29,7 @@
- #include "tablet-v2-client-protocol.h"
+@@ -30,6 +30,7 @@
+ #include "tablet-unstable-v2-client-protocol.h"
  #include "relative-pointer-unstable-v1-client-protocol.h"
  #include "viewporter-client-protocol.h"
 +#include "pointer-constraints-unstable-v1-client-protocol.h"
  
  struct wlr_wl_linux_dmabuf_feedback_v1 {
  	struct wlr_wl_backend *backend;
-@@ -411,6 +412,9 @@ static void registry_global(void *data, struct wl_registry *registry,
+@@ -405,6 +406,9 @@ static void registry_global(void *data, struct wl_registry *registry,
  	} else if (strcmp(iface, wp_viewporter_interface.name) == 0) {
  		wl->viewporter = wl_registry_bind(registry, name,
  			&wp_viewporter_interface, 1);
@@ -33,7 +33,7 @@ index 9a74e691..8cef72c2 100644
  }
  
 diff --git a/backend/wayland/meson.build b/backend/wayland/meson.build
-index fcf9fdd8..2030eec7 100644
+index 0fd528cf..7fd1595c 100644
 --- a/backend/wayland/meson.build
 +++ b/backend/wayland/meson.build
 @@ -18,6 +18,7 @@ client_protos = [
@@ -41,14 +41,14 @@ index fcf9fdd8..2030eec7 100644
  	'presentation-time',
  	'relative-pointer-unstable-v1',
 +	'pointer-constraints-unstable-v1',
- 	'tablet-v2',
+ 	'tablet-unstable-v2',
  	'viewporter',
  	'xdg-activation-v1',
 diff --git a/backend/wayland/pointer.c b/backend/wayland/pointer.c
-index 87383fa8..431aef9d 100644
+index 39fb337e..a00d3842 100644
 --- a/backend/wayland/pointer.c
 +++ b/backend/wayland/pointer.c
-@@ -8,6 +8,7 @@
+@@ -10,6 +10,7 @@
  
  #include "pointer-gestures-unstable-v1-client-protocol.h"
  #include "relative-pointer-unstable-v1-client-protocol.h"
@@ -56,7 +56,7 @@ index 87383fa8..431aef9d 100644
  
  static struct wlr_wl_pointer *output_get_pointer(struct wlr_wl_output *output,
  		const struct wl_pointer *wl_pointer) {
-@@ -55,6 +56,7 @@ static void pointer_handle_enter(void *data, struct wl_pointer *wl_pointer,
+@@ -57,6 +58,7 @@ static void pointer_handle_enter(void *data, struct wl_pointer *wl_pointer,
  	output->enter_serial = serial;
  	output->cursor.pointer = pointer;
  	update_wl_output_cursor(output);
@@ -64,7 +64,7 @@ index 87383fa8..431aef9d 100644
  }
  
  static void pointer_handle_leave(void *data, struct wl_pointer *wl_pointer,
-@@ -78,6 +80,7 @@ static void pointer_handle_leave(void *data, struct wl_pointer *wl_pointer,
+@@ -80,6 +82,7 @@ static void pointer_handle_leave(void *data, struct wl_pointer *wl_pointer,
  		output->enter_serial = 0;
  		output->cursor.pointer = NULL;
  	}
@@ -73,7 +73,7 @@ index 87383fa8..431aef9d 100644
  
  static void pointer_handle_motion(void *data, struct wl_pointer *wl_pointer,
 diff --git a/include/backend/wayland.h b/include/backend/wayland.h
-index aa266eef..6ee084a6 100644
+index d6796b44..d4080592 100644
 --- a/include/backend/wayland.h
 +++ b/include/backend/wayland.h
 @@ -49,6 +49,7 @@ struct wlr_wl_backend {
@@ -84,7 +84,7 @@ index aa266eef..6ee084a6 100644
  	char *drm_render_name;
  };
  
-@@ -129,6 +130,7 @@ struct wlr_wl_pointer {
+@@ -113,6 +114,7 @@ struct wlr_wl_pointer {
  	struct wl_listener output_destroy;
  
  	struct wl_list link;
@@ -93,5 +93,5 @@ index aa266eef..6ee084a6 100644
  
  struct wlr_wl_touch_points {
 -- 
-2.47.1
+2.44.0
 

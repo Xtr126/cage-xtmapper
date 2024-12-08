@@ -1,4 +1,4 @@
-From f1ca5197c136bcf4198efdf94c8ce3419cb74d30 Mon Sep 17 00:00:00 2001
+From 72d92692f3b16ba96820e20829b3b5c5f822b74c Mon Sep 17 00:00:00 2001
 From: Xtr126 <80520774+Xtr126@users.noreply.github.com>
 Date: Thu, 25 Apr 2024 23:41:12 +0530
 Subject: [PATCH 1/6] refactor: embedding wlroots
@@ -32,14 +32,14 @@ index 0000000..8c9ffd9
 +	path = subprojects/wlroots
 +	url = https://gitlab.freedesktop.org/wlroots/wlroots.git
 diff --git a/meson.build b/meson.build
-index 7b58cd8..f5301fe 100644
+index 45b3f91..aaff785 100644
 --- a/meson.build
 +++ b/meson.build
 @@ -35,7 +35,12 @@ if is_freebsd
    )
  endif
  
--wlroots        = dependency('wlroots-0.18', fallback: ['wlroots', 'wlroots'])
+-wlroots        = dependency('wlroots', version: '>= 0.17.0', fallback: ['wlroots', 'wlroots'])
 +wlroots_proj = subproject(
 +  'wlroots',
 +  default_options: ['examples=false', 'xwayland=disabled', 'backends=x11'],
@@ -51,11 +51,11 @@ index 7b58cd8..f5301fe 100644
  xkbcommon      = dependency('xkbcommon')
 diff --git a/subprojects/wlroots b/subprojects/wlroots
 new file mode 160000
-index 0000000..5bc3907
+index 0000000..6dce6ae
 --- /dev/null
 +++ b/subprojects/wlroots
 @@ -0,0 +1 @@
-+Subproject commit 5bc39071d173301eb8b2cd652c711075526dfbd9
++Subproject commit 6dce6ae2ed92544b9758b194618e21f4c97f1d6b
 -- 
-2.47.1
+2.47.0
 
