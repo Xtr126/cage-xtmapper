@@ -1,7 +1,7 @@
 From a39380a3f24aeeffcdaacb62da6073f352a80da9 Mon Sep 17 00:00:00 2001
 From: Xtr126 <80520774+Xtr126@users.noreply.github.com>
 Date: Tue, 30 Apr 2024 18:31:11 +0530
-Subject: [PATCH 3/6] disable Xwayland
+Subject: [PATCH 3/7] disable Xwayland
 
 ---
  meson_options.txt | 3 ++-

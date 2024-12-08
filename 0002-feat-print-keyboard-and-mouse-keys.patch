@@ -1,7 +1,7 @@
 From 8f95ca82f2b68194dd5f63c80b676658e5d3e145 Mon Sep 17 00:00:00 2001
 From: Xtr126 <80520774+Xtr126@users.noreply.github.com>
 Date: Fri, 26 Apr 2024 00:47:17 +0530
-Subject: [PATCH 2/6] feat: print keyboard and mouse keys
+Subject: [PATCH 2/7] feat: print keyboard and mouse keys
 
 fix: dont send mouse input to client
 

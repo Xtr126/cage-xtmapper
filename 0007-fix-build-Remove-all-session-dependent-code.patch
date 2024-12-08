@@ -1,0 +1,34 @@
+From 7224d256198509b8ea2482f9ddb08963b46e2a03 Mon Sep 17 00:00:00 2001
+From: Xtr126 <80520774+Xtr126@users.noreply.github.com>
+Date: Sun, 8 Dec 2024 19:30:35 +0530
+Subject: [PATCH 7/7] fix(build): Remove all session dependent code
+
+---
+ seat.c | 11 -----------
+ 1 file changed, 11 deletions(-)
+
+diff --git a/seat.c b/seat.c
+index 9135721..5e264ea 100644
+--- a/seat.c
++++ b/seat.c
+@@ -264,17 +264,6 @@ handle_keybinding(struct cg_server *server, xkb_keysym_t sym)
+ 		return true;
+ 	}
+ #endif
+-	if (server->allow_vt_switch && sym >= XKB_KEY_XF86Switch_VT_1 && sym <= XKB_KEY_XF86Switch_VT_12) {
+-		if (wlr_backend_is_multi(server->backend)) {
+-			if (server->session) {
+-				unsigned vt = sym - XKB_KEY_XF86Switch_VT_1 + 1;
+-				wlr_session_change_vt(server->session, vt);
+-			}
+-		}
+-	} else {
+-		return false;
+-	}
+-	wlr_idle_notifier_v1_notify_activity(server->idle, server->seat->seat);
+ 	return true;
+ }
+ 
+-- 
+2.47.1
+
