@@ -1,7 +1,7 @@
 From d9a248b15a3ad510726f54f1ca44738b34064b6d Mon Sep 17 00:00:00 2001
 From: Xtr126 <80520774+Xtr126@users.noreply.github.com>
 Date: Tue, 30 Apr 2024 18:31:11 +0530
-Subject: [PATCH 3/6] disable Xwayland
+Subject: [PATCH 3/7] disable Xwayland
 
 ---
  meson_options.txt | 4 ++--
@@ -17,5 +17,5 @@ index d64f510..b524b15 100644
 +option('man-pages', type: 'feature', value: 'disabled', description: 'Generate and install man pages')
 +option('xwayland', type: 'feature', value: 'disabled', description: 'Enable support for X11 applications')
 -- 
-2.47.0
+2.47.1
 

@@ -1,7 +1,7 @@
-From 249ea7eb10a3dc8b4683390b9876764c58eb82bc Mon Sep 17 00:00:00 2001
+From e721dadd3a0440d550f640472e9ee49c2471a3c1 Mon Sep 17 00:00:00 2001
 From: Xtr126 <80520774+Xtr126@users.noreply.github.com>
 Date: Thu, 11 Jul 2024 08:03:32 +0530
-Subject: [PATCH 5/6] Add toggle key
+Subject: [PATCH 5/7] Add toggle key
 
 ---
  seat.c      | 79 ++++++++++++++++++++++++++++++++++++++++-------------
@@ -173,7 +173,7 @@ index 4b7bfda..0bf9922 100644
  struct cg_keyboard_group {
 diff --git a/togglekey.h b/togglekey.h
 new file mode 100644
-index 0000000..b959476
+index 0000000..cf21ecc
 --- /dev/null
 +++ b/togglekey.h
 @@ -0,0 +1,10 @@
@@ -186,7 +186,7 @@ index 0000000..b959476
 +/dev/input/wl_keyboard: EV_KEY KEY_F11 DOWN
 +/dev/input/wl_keyboard: EV_KEY KEY_SUPER_L UP
 +*/
-+#define TOGGLEKEY "KEY_F11"
++#define TOGGLEKEY "KEY_F10"
 -- 
-2.47.0
+2.47.1
 
