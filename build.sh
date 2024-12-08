@@ -75,11 +75,11 @@ apply_wlroots_patches() {
 meson setup build \
     --buildtype=release \
     -Ddefault_library=static \
-    -Dprefix=/ 
+    -Dprefix=/usr/local 
 
 meson compile -C build
 
-meson install -C build --destdir "$parent_dir"/build
+meson install -C build --destdir "$parent_dir"/build/installed
 
 
 
