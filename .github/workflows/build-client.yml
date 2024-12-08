@@ -14,6 +14,8 @@ jobs:
     - name: Prepare environment
       run: |
         sudo sed -i 's/^Types: deb$/Types: deb deb-src/' /etc/apt/sources.list.d/ubuntu.sources
+        sudo sed -i 's/noble/plucky/g' /etc/apt/sources.list
+        sudo sed -i 's/noble/plucky/g' /etc/apt/sources.list.d/ubuntu.sources
         sudo apt update
         sudo apt build-dep wlroots -y
 
