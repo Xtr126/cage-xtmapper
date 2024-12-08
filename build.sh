@@ -80,6 +80,10 @@ meson setup build \
 if [[ -z $dry_run ]]; then 
     meson compile -C build
     meson install -C build --destdir "$parent_dir"/build/installed
+    cd "$parent_dir"/build/installed
+    cp "$parent_dir"/cage_xtmapper.sh usr/local/bin
+    chmod a+x usr/local/bin/cage_xtmapper.sh
+    rm -r usr/local/{lib*,include}  
 fi
 
 
