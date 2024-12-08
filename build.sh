@@ -20,12 +20,13 @@ exit_error() {
     exit 1
 }
 
-extract_tarball() {
-    local tarball="$1"
-    echo "Extracting $tarball"
-    if ! tar xf "$tarball";  then
-        bsdtar -xf "$tarball" || exit_error "Failed to extract tarball\nTried tar and bsdtar"
-    fi
+extract_source_archive() {
+    local file="$1"
+    echo "Extracting $file"
+    tar xf "$file" || \
+    bsdtar -xf "$file" || \
+    unzip "$file" || \
+    exit_error "Failed to extract file\nTried tar,bsdtar and unzip"
 }
 
 parent_dir="$(pwd)"
@@ -37,11 +38,9 @@ else
     exit_error "build directory exists"
 fi
 
-extract_tarball "$parent_dir"/cage-0.2.0.tar.gz
+extract_source_archive "$parent_dir"/cage-*
 
-cd cage-0.2.0
-
-
+cd cage-*
 
 mkdir -p subprojects/
 
@@ -55,9 +54,9 @@ apply_cage_patches
 
 (   
     cd subprojects; 
-    extract_tarball "$parent_dir"/wlroots-0.18.1.tar.gz
+    extract_source_archive "$parent_dir"/wlroots-*.tar.gz
     rm -rf wlroots
-    mv wlroots-0.18.1 wlroots
+    mv wlroots-* wlroots
 )
 
 apply_wlroots_patches() {
@@ -70,15 +69,13 @@ apply_wlroots_patches() {
 
     ln -s "$parent_dir"/meson_wrapfiles/* ./subprojects/    
     ln -s "$parent_dir"/wlroots_deps/* ./subprojects/packagefiles/  
-
-    [ $c11_patch == true ] && sed -i "s/'c_std=' + (meson.version().version_compare('>=1.3.0') ? 'c23,c11' : 'c11')/'c_std=' + (meson.version().version_compare('>1.3.2') ? 'c23,c11' : 'c11')/" meson.build
 }
 ( apply_wlroots_patches )
 
 meson setup build \
     --buildtype=release \
     -Ddefault_library=static \
-    -Dprefix=/installed 
+    -Dprefix=/ 
 
 meson compile -C build
 
