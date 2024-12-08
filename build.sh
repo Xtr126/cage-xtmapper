@@ -2,9 +2,9 @@
 
 while [ $# -gt 0 ]; do
     case "$1" in
-    --c11-patch)
+    --dry-run)
         shift
-        c11_patch=true
+        dry_run=true
         ;;
     *)
 	echo "Invalid argument"
@@ -77,9 +77,9 @@ meson setup build \
     -Ddefault_library=static \
     -Dprefix=/usr/local 
 
-meson compile -C build
-
-meson install -C build --destdir "$parent_dir"/build/installed
-
+if [[ -z $dry_run ]]; then 
+    meson compile -C build
+    meson install -C build --destdir "$parent_dir"/build/installed
+fi
 
 
