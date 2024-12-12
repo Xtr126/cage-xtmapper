@@ -21,14 +21,18 @@ Cage: https://github.com/cage-kiosk/cage
 wlroots: https://gitlab.freedesktop.org/wlroots
 
 ## Usage
-Install the latest version of XtMapper from https://github.com/Xtr126/wayland-getevent/releases/tag/latest only to use cage.  
+Install the previously built binaries and the script to /usr/local/bin.  
+Run from within the cage-xtmapper directory:
 
-Run the [cage_xtmapper.sh](https://github.com/Xtr126/cage/blob/master/cage_xtmapper.sh) script.  
+    cd build/installed/usr/local/bin/
+    sudo install -Dm755 ./cage_xtmapper /usr/local/bin/
+    sudo install -Dm755 ./cage_xtmapper.sh /usr/local/bin/
+Run the [cage_xtmapper.sh](./cage_xtmapper.sh) script.  
 
-        $ sudo -E ./cage_xtmapper.sh --user $(whoami) --window-width 1280 --window-height 720 --window-no-title-bar
+    sudo -E cage_xtmapper.sh --user $(whoami) --window-width 1280 --window-height 720 --window-no-title-bar
 Enable cursor on subsurface if cursor is invisible:
   
-        $ waydroid prop set persist.waydroid.cursor_on_subsurface true
+    waydroid prop set persist.waydroid.cursor_on_subsurface true
 - wlroots x11 and wayland backends were modified to use a custom resolution set by the `XTMAPPER_WIDTH` and `XTMAPPER_HEIGHT` environment variables.  
 - Wayland only - Hide window title bar when `WLR_NO_DECORATION=1` or `--window-no-title-bar` is set.  
 - Use F10 or any other key defined in  [togglekey.h](https://github.com/Xtr126/cage/blob/master/togglekey.h) to toggle between XtMapper or Waydroid handling mouse input.
