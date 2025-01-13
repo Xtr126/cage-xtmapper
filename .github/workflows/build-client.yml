@@ -22,7 +22,16 @@ jobs:
     - name: Execute build script
       run: ./build.sh
 
-    - uses: actions/upload-artifact@v4
+    - name: Package into tarball
+      working-directory: ./build/installed
+      run: tar pcf cage-xtmapper-v0.1.5.tar usr
+        
+    - name: Upload binaries to release
+      uses: svenstaro/upload-release-action@v2
       with:
-        name: cage_xtmapper
-        path: ./build/installed
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: './build/installed/cage-xtmapper-v0.1.5.tar'
+        tag: latest
+        overwrite: true
+        file_glob: true          
+        draft: true
