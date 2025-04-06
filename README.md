@@ -1,25 +1,35 @@
 
 ## Usage
 Download pre-built binaries from releases or build from source (recommended) as explained below.
-Install the previously built binary and the script to /usr/local/bin.  
-Run from within the cage-xtmapper directory after building:
 
-    cd build/installed/usr/local/bin/
-    sudo install -Dm755 ./cage_xtmapper /usr/local/bin/
-    sudo install -Dm755 ./cage_xtmapper.sh /usr/local/bin/
+Run the [cage_xtmapper.sh](./cage_xtmapper.sh) script:  
 
-For pre-builts:
+    sudo -E cage_xtmapper.sh --user $(whoami) --window-width 1280 --window-height 720 --window-no-title-bar
+If above command fails or in case no root access is available, try with ADB:
+    
+    cage_xtmapper.sh --window-width 1280 --window-height 720 --window-no-title-bar --adb
+Enable cursor on subsurface if cursor is invisible:
+  
+    waydroid prop set persist.waydroid.cursor_on_subsurface true
+
+
+## Download and install
+To download and install from [pre-builts](https://github.com/Xtr126/cage-xtmapper/releases), paste the following into a terminal.
+
+Download v0.2.0 - For modern distros with wlroots v0.18 or newer - Ubuntu 25.04 (plucky), Debian Sid, Arch, Fedora, Alpine
+
+    curl -qgb "" -fOLC - --retry 3 --retry-delay 3  "https://github.com/Xtr126/cage-xtmapper/releases/download/latest/cage-xtmapper-v0.2.0.tar"
+
+Download v0.1.5 - For slightly older distros with wlroots v0.17.x - Ubuntu 24.04 (noble), Debian 13 (Trixie)
+
+    curl -qgb "" -fOLC - --retry 3 --retry-delay 3  "https://github.com/Xtr126/cage-xtmapper/releases/download/latest/cage-xtmapper-v0.1.5.tar"
+
+To install from the downloaded tarball:
 
     tar xvf cage-xtmapper*.tar
     cd usr/local/bin
     sudo install -Dm755 ./cage_xtmapper /usr/local/bin/
     sudo install -Dm755 ./cage_xtmapper.sh /usr/local/bin/
-Run the [cage_xtmapper.sh](./cage_xtmapper.sh) script.  
-
-    sudo -E cage_xtmapper.sh --user $(whoami) --window-width 1280 --window-height 720 --window-no-title-bar
-Enable cursor on subsurface if cursor is invisible:
-  
-    waydroid prop set persist.waydroid.cursor_on_subsurface true
     
 ## Build 
 **Cage dependencies**  
@@ -41,6 +51,14 @@ Replace `<branch>` below with either v0.2.0 or v0.1.5
 If build fails, check if upstream cage and wlroots source code can build normally on your system:  
 Cage: https://github.com/cage-kiosk/cage  
 wlroots: https://gitlab.freedesktop.org/wlroots
+
+Install the previously built binary and the script to /usr/local/bin.  
+Run from within the cage-xtmapper directory after building:
+
+    cd build/installed/usr/local/bin/
+    sudo install -Dm755 ./cage_xtmapper /usr/local/bin/
+    sudo install -Dm755 ./cage_xtmapper.sh /usr/local/bin/
+
 
 - wlroots x11 and wayland backends were modified to use a custom resolution set by the `XTMAPPER_WIDTH` and `XTMAPPER_HEIGHT` environment variables.  
 - Wayland only - Hide window title bar when `WLR_NO_DECORATION=1` or `--window-no-title-bar` is set.  
