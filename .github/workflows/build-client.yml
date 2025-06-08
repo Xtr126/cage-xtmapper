@@ -31,7 +31,7 @@ jobs:
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: './build/installed/cage-xtmapper-v0.1.5.tar'
-        tag: latest
+        tag: v20250608
         overwrite: true
         file_glob: true          
         draft: true
