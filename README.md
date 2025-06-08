@@ -18,11 +18,11 @@ To download and install from [pre-builts](https://github.com/Xtr126/cage-xtmappe
 
 Download v0.2.0 - For modern distros with wlroots v0.18 or newer - Ubuntu 25.04 (plucky), Debian Sid, Arch, Fedora, Alpine
 
-    curl -qgb "" -fOLC - --retry 3 --retry-delay 3  "https://github.com/Xtr126/cage-xtmapper/releases/download/latest/cage-xtmapper-v0.2.0.tar"
+    curl -fOL --retry 3 --retry-delay 3  "https://github.com/Xtr126/cage-xtmapper/releases/latest/download/cage-xtmapper-v0.2.0.tar"
 
 Download v0.1.5 - For slightly older distros with wlroots v0.17.x - Ubuntu 24.04 (noble), Debian 13 (Trixie)
 
-    curl -qgb "" -fOLC - --retry 3 --retry-delay 3  "https://github.com/Xtr126/cage-xtmapper/releases/download/latest/cage-xtmapper-v0.1.5.tar"
+    curl -fOL --retry 3 --retry-delay 3  "https://github.com/Xtr126/cage-xtmapper/releases/latest/download/cage-xtmapper-v0.1.5.tar"
 
 To install from the downloaded tarball:
 
