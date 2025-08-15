@@ -4,8 +4,8 @@ Download pre-built binaries from releases or build from source (recommended) as 
 
 Run the [cage_xtmapper.sh](./cage_xtmapper.sh) script:  
 
-    sudo -E cage_xtmapper.sh --user $(whoami) --window-width 1280 --window-height 720 --window-no-title-bar
-If above command fails or in case no root access is available, try with ADB:
+    cage_xtmapper.sh --window-width 1280 --window-height 720 --window-no-title-bar
+Alternative: use ADB (uses TCP socket instead of pipe, no sudo needed)
     
     cage_xtmapper.sh --window-width 1280 --window-height 720 --window-no-title-bar --adb
 Enable cursor on subsurface if cursor is invisible:
@@ -16,6 +16,7 @@ Enable cursor on subsurface if cursor is invisible:
 ## Download and install
 To download and install from [pre-builts](https://github.com/Xtr126/cage-xtmapper/releases), paste the following into a terminal.
 
+### Step 1
 Download v0.2.0 - For modern distros with wlroots v0.18 or newer - Ubuntu 25.04 (plucky), Debian Sid, Arch, Fedora, Alpine
 
     curl -fOL --retry 3 --retry-delay 3  "https://github.com/Xtr126/cage-xtmapper/releases/latest/download/cage-xtmapper-v0.2.0.tar"
@@ -24,6 +25,7 @@ Download v0.1.5 - For slightly older distros with wlroots v0.17.x - Ubuntu 24.04
 
     curl -fOL --retry 3 --retry-delay 3  "https://github.com/Xtr126/cage-xtmapper/releases/latest/download/cage-xtmapper-v0.1.5.tar"
 
+### Step 2
 To install from the downloaded tarball:
 
     tar xvf cage-xtmapper*.tar
@@ -52,7 +54,7 @@ If build fails, check if upstream cage and wlroots source code can build normall
 Cage: https://github.com/cage-kiosk/cage  
 wlroots: https://gitlab.freedesktop.org/wlroots
 
-Install the previously built binary and the script to /usr/local/bin.  
+### Install the built binary and the script to /usr/local/bin.  
 Run from within the cage-xtmapper directory after building:
 
     cd build/installed/usr/local/bin/
@@ -60,6 +62,7 @@ Run from within the cage-xtmapper directory after building:
     sudo install -Dm755 ./cage_xtmapper.sh /usr/local/bin/
 
 
+## Some info
 - wlroots x11 and wayland backends were modified to use a custom resolution set by the `XTMAPPER_WIDTH` and `XTMAPPER_HEIGHT` environment variables.  
 - Wayland only - Hide window title bar when `WLR_NO_DECORATION=1` or `--window-no-title-bar` is set.  
 - Use F10 or any other key defined in  [togglekey.h](https://github.com/Xtr126/cage/blob/master/togglekey.h) to toggle between XtMapper or Waydroid handling mouse input.
@@ -72,5 +75,4 @@ To revert:
 ```bash
  sudo find /run/udev -type f -exec sed -i 's/ID_INPUT_TOUCHSCREEN/ID_INPUT_TOUCHPAD/g' {} \;
 ```
-Works fine on plasma 6.1.5 and Arch Linux.  
-Also recommend enabling "Touch points" from System Settings > Window Management > Desktop effects to visualize touches.
+On Plasma, you can enable "Touch points" from System Settings > Window Management > Desktop effects to visualize touches.
