@@ -1,0 +1,34 @@
+From 2d7e29cfcca36db23b0c2b75845b0c379f143e2c Mon Sep 17 00:00:00 2001
+From: Xtr126 <k.gunetilleke@gmail.com>
+Date: Fri, 5 Sep 2025 18:23:20 +0530
+Subject: [PATCH 5/5] allow overriding refresh with env var
+
+---
+ backend/wayland/output.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
+
+diff --git a/backend/wayland/output.c b/backend/wayland/output.c
+index 9b216cae..73d0897b 100644
+--- a/backend/wayland/output.c
++++ b/backend/wayland/output.c
+@@ -893,9 +893,14 @@ static struct wlr_wl_output *output_create(struct wlr_wl_backend *backend,
+ 
+ 	size_t width = parse_size_env("XTMAPPER_WIDTH");
+ 	size_t height = parse_size_env("XTMAPPER_HEIGHT");
+-
+-	if (width > 1 && height > 1) wlr_output_state_set_custom_mode(&state, width, height, 0);
+-	else wlr_output_state_set_custom_mode(&state, 1280, 720, 0);
++	size_t refresh = parse_size_env("XTMAPPER_REFRESH");
++
++	if (width > 1 && height > 1 && refresh > 1)
++		wlr_output_state_set_custom_mode(&state, width, height, refresh);
++	else if (width > 1 && height > 1)
++		wlr_output_state_set_custom_mode(&state, width, height, 0);
++	else 
++		wlr_output_state_set_custom_mode(&state, 1280, 720, 0);
+ 
+ 	wlr_output_init(wlr_output, &backend->backend, &output_impl,
+ 		backend->event_loop, &state);
+-- 
+2.51.0
+
