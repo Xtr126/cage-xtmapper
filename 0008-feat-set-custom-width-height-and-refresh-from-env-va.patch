@@ -1,0 +1,76 @@
+From 0a4a9bd7ce31f051d0f8739e5cf3642bf0cf6517 Mon Sep 17 00:00:00 2001
+From: Xtr126 <k.gunetilleke@gmail.com>
+Date: Thu, 18 Sep 2025 11:41:24 +0530
+Subject: [PATCH 8/8] feat: set custom width, height and refresh from env vars
+
+---
+ .gitignore            |  2 +-
+ output.c              | 24 ++++++++++++++++++++++++
+ subprojects/.wraplock |  0
+ subprojects/wlroots   |  2 +-
+ 4 files changed, 26 insertions(+), 2 deletions(-)
+ create mode 100644 subprojects/.wraplock
+
+diff --git a/.gitignore b/.gitignore
+index 357804a..16d3c4d 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -1 +1 @@
+-/.cache/
+\ No newline at end of file
++.cache
+diff --git a/output.c b/output.c
+index f1c0419..e93d78a 100644
+--- a/output.c
++++ b/output.c
+@@ -255,6 +255,22 @@ handle_output_destroy(struct wl_listener *listener, void *data)
+ 	output_destroy(output);
+ }
+ 
++static size_t parse_size_env(const char *name) {
++	const char *size_str = getenv(name);
++	if (size_str == NULL) {
++		return 0;
++	}
++
++	char *end;
++	int size = (int)strtol(size_str, &end, 10);
++	if (*end || size < 0) {
++		wlr_log(WLR_ERROR, "%s specified with invalid integer, ignoring", name);
++		return 0;
++	}
++
++	return size;
++}
++
+ void
+ handle_new_output(struct wl_listener *listener, void *data)
+ {
+@@ -325,6 +341,14 @@ handle_new_output(struct wl_listener *listener, void *data)
+ 			wlr_output->scale);
+ 	}
+ 
++	size_t width = parse_size_env("XTMAPPER_WIDTH");
++	size_t height = parse_size_env("XTMAPPER_HEIGHT");
++	size_t refresh = parse_size_env("XTMAPPER_REFRESH");
++
++	if (width > 0 && height > 0 && refresh > 0) wlr_output_state_set_custom_mode(&state, width, height, refresh);
++	else if (width > 0 && height > 0) wlr_output_state_set_custom_mode(&state, width, height, 0);
++	else wlr_output_state_set_custom_mode(&state, 1280, 720, 0);
++
+ 	wlr_log(WLR_DEBUG, "Enabling new output %s", wlr_output->name);
+ 	if (wlr_output_commit_state(wlr_output, &state)) {
+ 		output_layout_add_auto(output);
+diff --git a/subprojects/.wraplock b/subprojects/.wraplock
+new file mode 100644
+index 0000000..e69de29
+diff --git a/subprojects/wlroots b/subprojects/wlroots
+index 5bc3907..3b4057b 160000
+--- a/subprojects/wlroots
++++ b/subprojects/wlroots
+@@ -1 +1 @@
+-Subproject commit 5bc39071d173301eb8b2cd652c711075526dfbd9
++Subproject commit 3b4057b3d8a84a358386ab7ed836f287c0960c8a
+-- 
+2.51.0
+
