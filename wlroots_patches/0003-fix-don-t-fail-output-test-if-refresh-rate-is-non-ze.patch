@@ -1,0 +1,41 @@
+From 3b4057b3d8a84a358386ab7ed836f287c0960c8a Mon Sep 17 00:00:00 2001
+From: Xtr126 <k.gunetilleke@gmail.com>
+Date: Thu, 18 Sep 2025 11:37:55 +0530
+Subject: [PATCH 3/3] fix: don't fail output test if refresh rate is non-zero
+
+---
+ backend/wayland/output.c | 3 +--
+ backend/x11/output.c     | 3 +--
+ 2 files changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/backend/wayland/output.c b/backend/wayland/output.c
+index 66e0e894..27b26183 100644
+--- a/backend/wayland/output.c
++++ b/backend/wayland/output.c
+@@ -323,8 +323,7 @@ static bool output_test(struct wlr_output *wlr_output,
+ 		assert(state->mode_type == WLR_OUTPUT_STATE_MODE_CUSTOM);
+ 
+ 		if (state->custom_mode.refresh != 0) {
+-			wlr_log(WLR_DEBUG, "Refresh rates are not supported");
+-			return false;
++			wlr_log(WLR_ERROR, "Refresh rates are not supported");
+ 		}
+ 	}
+ 
+diff --git a/backend/x11/output.c b/backend/x11/output.c
+index 51a8459d..714e22f9 100644
+--- a/backend/x11/output.c
++++ b/backend/x11/output.c
+@@ -161,8 +161,7 @@ static bool output_test(struct wlr_output *wlr_output,
+ 		assert(state->mode_type == WLR_OUTPUT_STATE_MODE_CUSTOM);
+ 
+ 		if (state->custom_mode.refresh != 0) {
+-			wlr_log(WLR_DEBUG, "Refresh rates are not supported");
+-			return false;
++			wlr_log(WLR_ERROR, "Refresh rates are not supported");
+ 		}
+ 	}
+ 
+-- 
+2.51.0
+
