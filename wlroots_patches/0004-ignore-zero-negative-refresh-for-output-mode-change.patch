@@ -1,0 +1,25 @@
+From a114a81d08ceccee4dc0124b4875f2b674b1b860 Mon Sep 17 00:00:00 2001
+From: Xtr126 <k.gunetilleke@gmail.com>
+Date: Fri, 19 Sep 2025 18:22:39 +0530
+Subject: [PATCH 4/4] ignore zero/negative refresh for output mode change
+
+---
+ types/output/output.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/types/output/output.c b/types/output/output.c
+index 818f4549..2ba64bf2 100644
+--- a/types/output/output.c
++++ b/types/output/output.c
+@@ -302,7 +302,7 @@ static void output_apply_state(struct wlr_output *output,
+ 			output->width = width;
+ 			output->height = height;
+ 
+-			output->refresh = refresh;
++			if (refresh > 0) output->refresh = refresh;
+ 
+ 			if (output->swapchain != NULL &&
+ 					(output->swapchain->width != output->width ||
+-- 
+2.51.0
+
