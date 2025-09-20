@@ -15,7 +15,11 @@ while [ $# -gt 0 ]; do
         --refresh-mhz)
             shift
             export XTMAPPER_REFRESH="$1"
-            ;;  
+            ;;
+        --print-output-info)
+            XTMAPPER_WIDTH=1 XTMAPPER_HEIGHT=1 XTMAPPER_PRINT_OUTPUT_INFO=1 cage_xtmapper -- sleep 1
+            exit            
+            ;;
         --window-no-title-bar)
             export WLR_NO_DECORATION=1
             ;;
