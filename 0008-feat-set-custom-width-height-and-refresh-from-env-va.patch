@@ -1,4 +1,4 @@
-From 0a4a9bd7ce31f051d0f8739e5cf3642bf0cf6517 Mon Sep 17 00:00:00 2001
+From 5a04e2ba27c525422912f4d4dff5a75c39e1c9da Mon Sep 17 00:00:00 2001
 From: Xtr126 <k.gunetilleke@gmail.com>
 Date: Thu, 18 Sep 2025 11:41:24 +0530
 Subject: [PATCH 8/8] feat: set custom width, height and refresh from env vars
@@ -20,7 +20,7 @@ index 357804a..16d3c4d 100644
 \ No newline at end of file
 +.cache
 diff --git a/output.c b/output.c
-index f1c0419..e93d78a 100644
+index f1c0419..d5a1899 100644
 --- a/output.c
 +++ b/output.c
 @@ -255,6 +255,22 @@ handle_output_destroy(struct wl_listener *listener, void *data)
@@ -56,7 +56,7 @@ index f1c0419..e93d78a 100644
 +
 +	if (width > 0 && height > 0 && refresh > 0) wlr_output_state_set_custom_mode(&state, width, height, refresh);
 +	else if (width > 0 && height > 0) wlr_output_state_set_custom_mode(&state, width, height, 0);
-+	else wlr_output_state_set_custom_mode(&state, 1280, 720, 0);
++	else if (refresh > 0) wlr_output_state_set_custom_mode(&state, wlr_output->width, wlr_output->height, refresh);
 +
  	wlr_log(WLR_DEBUG, "Enabling new output %s", wlr_output->name);
  	if (wlr_output_commit_state(wlr_output, &state)) {

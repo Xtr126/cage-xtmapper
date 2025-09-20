@@ -1,41 +1,45 @@
-From bfc402ff47b7a485d96c7820eae55b8946ee0579 Mon Sep 17 00:00:00 2001
+From c233a1d81faf5006083b5a352c3930a5c2c1a9ca Mon Sep 17 00:00:00 2001
 From: Xtr126 <k.gunetilleke@gmail.com>
 Date: Thu, 18 Sep 2025 11:37:55 +0530
-Subject: [PATCH 3/4] fix: don't fail output test if refresh rate is non-zero
+Subject: [PATCH 3/5] fix: don't fail output test if refresh rate is non-zero
 
 ---
- backend/wayland/output.c | 3 +--
- backend/x11/output.c     | 3 +--
- 2 files changed, 2 insertions(+), 4 deletions(-)
+ backend/wayland/output.c | 5 -----
+ backend/x11/output.c     | 5 -----
+ 2 files changed, 10 deletions(-)
 
 diff --git a/backend/wayland/output.c b/backend/wayland/output.c
-index 66e0e894..27b26183 100644
+index 66e0e894..4ef5a691 100644
 --- a/backend/wayland/output.c
 +++ b/backend/wayland/output.c
-@@ -323,8 +323,7 @@ static bool output_test(struct wlr_output *wlr_output,
- 		assert(state->mode_type == WLR_OUTPUT_STATE_MODE_CUSTOM);
+@@ -321,11 +321,6 @@ static bool output_test(struct wlr_output *wlr_output,
  
- 		if (state->custom_mode.refresh != 0) {
+ 	if (state->committed & WLR_OUTPUT_STATE_MODE) {
+ 		assert(state->mode_type == WLR_OUTPUT_STATE_MODE_CUSTOM);
+-
+-		if (state->custom_mode.refresh != 0) {
 -			wlr_log(WLR_DEBUG, "Refresh rates are not supported");
 -			return false;
-+			wlr_log(WLR_ERROR, "Refresh rates are not supported");
- 		}
+-		}
  	}
  
+ 	if ((state->committed & WLR_OUTPUT_STATE_BUFFER) &&
 diff --git a/backend/x11/output.c b/backend/x11/output.c
-index 51a8459d..714e22f9 100644
+index 51a8459d..221a7304 100644
 --- a/backend/x11/output.c
 +++ b/backend/x11/output.c
-@@ -161,8 +161,7 @@ static bool output_test(struct wlr_output *wlr_output,
- 		assert(state->mode_type == WLR_OUTPUT_STATE_MODE_CUSTOM);
+@@ -159,11 +159,6 @@ static bool output_test(struct wlr_output *wlr_output,
  
- 		if (state->custom_mode.refresh != 0) {
+ 	if (state->committed & WLR_OUTPUT_STATE_MODE) {
+ 		assert(state->mode_type == WLR_OUTPUT_STATE_MODE_CUSTOM);
+-
+-		if (state->custom_mode.refresh != 0) {
 -			wlr_log(WLR_DEBUG, "Refresh rates are not supported");
 -			return false;
-+			wlr_log(WLR_ERROR, "Refresh rates are not supported");
- 		}
+-		}
  	}
  
+ 	return true;
 -- 
 2.51.0
 
