@@ -60,8 +60,6 @@ Run from within the cage-xtmapper directory after building:
 
 
 ## Some info
-- wlroots x11 and wayland backends were modified to use a custom resolution set by the `XTMAPPER_WIDTH` and `XTMAPPER_HEIGHT` environment variables.  
-- Wayland only - Hide window title bar when `WLR_NO_DECORATION=1` or `--window-no-title-bar` is set.  
 - Use F10 or any other key defined in  [togglekey.h](https://github.com/Xtr126/cage/blob/master/togglekey.h) to toggle between XtMapper or Waydroid handling mouse input.
 - Direct touchmap mode feature doesn't work, but you can use a simple udev hack:  
 We actually have to change `ID_INPUT_TOUCHPAD` to `ID_INPUT_TOUCHSCREEN`. So the following command would do that easily:
