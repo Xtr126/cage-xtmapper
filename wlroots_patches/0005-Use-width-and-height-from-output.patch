@@ -1,0 +1,146 @@
+From 8d44db4d1ee3ac8ec8e3ef008e101f1044ee9211 Mon Sep 17 00:00:00 2001
+From: Xtr126 <k.gunetilleke@gmail.com>
+Date: Sat, 20 Sep 2025 15:17:15 +0530
+Subject: [PATCH 5/5] Use width and height from output
+
+---
+ backend/wayland/backend.c | 73 +++++++++++++++++++++++++++++++++++++++
+ backend/wayland/output.c  |  2 +-
+ include/backend/wayland.h |  2 ++
+ 3 files changed, 76 insertions(+), 1 deletion(-)
+
+diff --git a/backend/wayland/backend.c b/backend/wayland/backend.c
+index d2856bd5..88e64897 100644
+--- a/backend/wayland/backend.c
++++ b/backend/wayland/backend.c
+@@ -1,14 +1,18 @@
++#include "backend/backend.h"
+ #include <assert.h>
+ #include <fcntl.h>
+ #include <limits.h>
+ #include <stdint.h>
++#include <stdio.h>
+ #include <stdlib.h>
+ #include <sys/mman.h>
+ #include <sys/types.h>
++#include <time.h>
+ #include <unistd.h>
+ 
+ #include <drm_fourcc.h>
+ #include <wayland-server-core.h>
++#include <wayland-server-protocol.h>
+ #include <xf86drm.h>
+ 
+ #include <wlr/backend/interface.h>
+@@ -345,6 +349,71 @@ static const struct wl_shm_listener shm_listener = {
+ 	.format = shm_handle_format,
+ };
+ 
++
++static void
++output_handle_mode(void *data,
++		     struct wl_output *wl_output,
++		     uint32_t flags,
++		     int32_t width,
++		     int32_t height,
++		     int32_t refresh) {
++	const char *flag_str = "";
++
++    if (flags & WL_OUTPUT_MODE_CURRENT) {
++        flag_str = "CURRENT";
++    }
++    if (flags & WL_OUTPUT_MODE_PREFERRED) {
++        if (*flag_str) {
++            flag_str = "CURRENT | PREFERRED";
++        } else {
++            flag_str = "PREFERRED";
++        }
++    }
++    if (*flag_str == '\0') {
++        flag_str = "none";
++    }
++
++	if (getenv("XTMAPPER_PRINT_OUTPUT_INFO")) {
++		fprintf(stderr, "%s", "\x1B[1;90m"); // color
++		fprintf(stderr,
++				"== Output mode ==\nWidth: %d\nHeight: %d\nRefresh: %d mHz (%.1f Hz)\nFlags: %s (0x%x)\n",
++				width, height,
++				refresh, refresh / 1000.0,
++				flag_str, flags);
++	}
++
++	if (!(getenv("XTMAPPER_WIDTH") && getenv("XTMAPPER_HEIGHT"))) {
++		fprintf(stderr, "%s", "\x1B[1;34m"); // blue
++		fprintf(stderr, "Window width and height not set, using output width and height\n");
++
++		struct wlr_wl_backend *wl = data;
++		wl->width = width;
++		wl->height = height;		
++	}
++
++	fprintf(stderr, "\x1B[0m");
++}
++
++static void output_handle_geometry(void *, struct wl_output *,
++               int32_t, int32_t,
++               int32_t, int32_t,
++               int32_t,
++               const char *, const char *,
++               int32_t) { }
++
++static void output_handle_done(void *, struct wl_output *) { }
++
++static void output_handle_scale(void *data, struct wl_output *,
++            int32_t scale) { }
++
++
++static const struct wl_output_listener output_listener = {
++    output_handle_geometry,
++    output_handle_mode,
++    output_handle_done,
++    output_handle_scale,
++};
++
+ static void registry_global(void *data, struct wl_registry *registry,
+ 		uint32_t name, const char *iface, uint32_t version) {
+ 	struct wlr_wl_backend *wl = data;
+@@ -416,6 +485,10 @@ static void registry_global(void *data, struct wl_registry *registry,
+ 	} else if (strcmp(iface, zwp_pointer_constraints_v1_interface.name) == 0) {
+         wl->pointer_constraints = (struct zwp_pointer_constraints_v1 *)wl_registry_bind(
+                 registry, name, &zwp_pointer_constraints_v1_interface, 1);
++	} else if (strcmp(iface, wl_output_interface.name) == 0) {
++		struct wl_output* output = (struct wl_output*)wl_registry_bind(registry, name,
++				&wl_output_interface, version >= 3 ? 3 : version);
++		wl_output_add_listener(output, &output_listener, wl);
+ 	}
+ }
+ 
+diff --git a/backend/wayland/output.c b/backend/wayland/output.c
+index 4ef5a691..254b959f 100644
+--- a/backend/wayland/output.c
++++ b/backend/wayland/output.c
+@@ -868,7 +868,7 @@ static struct wlr_wl_output *output_create(struct wlr_wl_backend *backend,
+ 
+ 	struct wlr_output_state state;
+ 	wlr_output_state_init(&state);
+-	wlr_output_state_set_custom_mode(&state, 1280, 720, 0);
++	wlr_output_state_set_custom_mode(&state, backend->width, backend->height, 0);
+ 
+ 	wlr_output_init(wlr_output, &backend->backend, &output_impl,
+ 		backend->event_loop, &state);
+diff --git a/include/backend/wayland.h b/include/backend/wayland.h
+index 6ee084a6..8bc5b2fb 100644
+--- a/include/backend/wayland.h
++++ b/include/backend/wayland.h
+@@ -51,6 +51,8 @@ struct wlr_wl_backend {
+ 	struct wp_viewporter *viewporter;
+ 	struct zwp_pointer_constraints_v1 *pointer_constraints;
+ 	char *drm_render_name;
++	int32_t width;
++	int32_t height;
+ };
+ 
+ struct wlr_wl_buffer {
+-- 
+2.51.0
+
