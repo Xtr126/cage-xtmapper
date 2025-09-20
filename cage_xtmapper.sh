@@ -2,6 +2,8 @@
 
 xtmapper_args=("--wayland-client")
 
+export WLR_NO_DECORATION=1
+
 while [ $# -gt 0 ]; do
     case "$1" in
         --window-width)
@@ -20,8 +22,8 @@ while [ $# -gt 0 ]; do
             XTMAPPER_WIDTH=1 XTMAPPER_HEIGHT=1 XTMAPPER_PRINT_OUTPUT_INFO=1 cage_xtmapper -- sleep 1
             exit            
             ;;
-        --window-no-title-bar)
-            export WLR_NO_DECORATION=1
+        --window-show-title-bar)
+            export WLR_NO_DECORATION=0
             ;;
         --adb)
             use_adb=1

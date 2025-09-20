@@ -4,10 +4,7 @@ Download pre-built binaries from releases or build from source (recommended) as 
 
 Run the [cage_xtmapper.sh](./cage_xtmapper.sh) script as the regular user:  
 
-    cage_xtmapper.sh --window-width 1280 --window-height 720 --window-no-title-bar
-Alternative: use ADB (uses TCP socket instead of pipe)
-    
-    cage_xtmapper.sh --window-width 1280 --window-height 720 --window-no-title-bar --adb
+    cage_xtmapper.sh
 Enable cursor on subsurface if cursor is invisible:
   
     waydroid prop set persist.waydroid.cursor_on_subsurface true
