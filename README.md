@@ -1,16 +1,31 @@
-
-## Usage
+# Usage
 Download pre-built binaries from releases or build from source (recommended) as explained below.
 
 Run the [cage_xtmapper.sh](./cage_xtmapper.sh) script as the regular user:  
 
     cage_xtmapper.sh
+
+
+# Features
+### Change refresh rate or FPS of waydroid
+https://xtr126.github.io/XtMapper-docs/waydroid/2-fps/
+### Touchpad input
+https://xtr126.github.io/XtMapper-docs/waydroid/3-touchpad/
+### Customize window
+https://xtr126.github.io/XtMapper-docs/waydroid/4-window-customization/
+### How to fullscreen cage-xtmapper
+https://xtr126.github.io/XtMapper-docs/waydroid/5-fullscreen/
+### Disable colored logcat output in the terminal
+https://xtr126.github.io/XtMapper-docs/waydroid/6-disable-logging/
+### Passthrough mouse input to waydroid instead of to XtMapper
+Use F10 or any other key defined in  [togglekey.h](https://github.com/Xtr126/cage/blob/master/togglekey.h) to toggle between XtMapper or Waydroid handling mouse input.  
+### Fix invisible cursor isssue
 Enable cursor on subsurface if cursor is invisible:
   
     waydroid prop set persist.waydroid.cursor_on_subsurface true
+Note: With cage v0.1.5 there is a two cursors on-screen issue.
 
-
-## Download and install
+# Download and install
 To download and install from [pre-builts](https://github.com/Xtr126/cage-xtmapper/releases), paste the following into a terminal.
 
 ### Step 1
@@ -30,7 +45,7 @@ To install from the downloaded tarball:
     sudo install -Dm755 ./cage_xtmapper /usr/local/bin/
     sudo install -Dm755 ./cage_xtmapper.sh /usr/local/bin/
     
-## Build 
+# Build 
 **Cage dependencies**  
 - [Arch](https://github.com/cage-kiosk/cage/blob/eaeab71ffa3ab5884df09c5664c00e368ca2585e/.github/workflows/main.yml#L32) `pacman -Syu xcb-util-wm seatd git clang meson libinput libdrm mesa libxkbcommon wayland wayland-protocols xorg-server-xwayland scdoc hwdata`  
 - [Alpine](https://github.com/cage-kiosk/cage/blob/eaeab71ffa3ab5884df09c5664c00e368ca2585e/.github/workflows/main.yml#L26) `apk add build-base xcb-util-wm-dev libseat-dev clang git eudev-dev mesa-dev libdrm-dev libinput-dev libxkbcommon-dev pixman-dev wayland-dev meson wayland-protocols xwayland-dev scdoc-doc hwdata`
@@ -58,16 +73,3 @@ Run from within the cage-xtmapper directory after building:
     sudo install -Dm755 ./cage_xtmapper /usr/local/bin/
     sudo install -Dm755 ./cage_xtmapper.sh /usr/local/bin/
 
-
-## Some info
-- Use F10 or any other key defined in  [togglekey.h](https://github.com/Xtr126/cage/blob/master/togglekey.h) to toggle between XtMapper or Waydroid handling mouse input.
-- Direct touchmap mode feature doesn't work, but you can use a simple udev hack:  
-We actually have to change `ID_INPUT_TOUCHPAD` to `ID_INPUT_TOUCHSCREEN`. So the following command would do that easily:
-```bash
- sudo find /run/udev -type f -exec sed -i 's/ID_INPUT_TOUCHPAD/ID_INPUT_TOUCHSCREEN/g' {} \;
-```
-To revert:
-```bash
- sudo find /run/udev -type f -exec sed -i 's/ID_INPUT_TOUCHSCREEN/ID_INPUT_TOUCHPAD/g' {} \;
-```
-On Plasma, you can enable "Touch points" from System Settings > Window Management > Desktop effects to visualize touches.
