@@ -17,6 +17,8 @@ https://xtr126.github.io/XtMapper-docs/waydroid/4-window-customization/
 https://xtr126.github.io/XtMapper-docs/waydroid/5-fullscreen/
 ### Disable colored logcat output in the terminal
 https://xtr126.github.io/XtMapper-docs/waydroid/6-disable-logging/
+### SteamOS session/ Bazzite steam gaming mode
+In desktop mode, go to Start menu > System, then right click on Konsole/Terminal and add to steam. Now you can launch Terminal or Konsole in Steam and run cage_xtmapper.sh.
 ### Passthrough mouse input to waydroid instead of to XtMapper
 Use F10 or any other key defined in  [togglekey.h](https://github.com/Xtr126/cage/blob/master/togglekey.h) to toggle between XtMapper or Waydroid handling mouse input.  
 ### Fix invisible cursor isssue
