@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Steam gaming mode 
+if  [[ -n "$GAMESCOPE_WAYLAND_DISPLAY" ]]; then
+	unset DISPLAY	
+	export WAYLAND_DISPLAY="$GAMESCOPE_WAYLAND_DISPLAY"
+fi
+
 xtmapper_args=("--wayland-client")
 
 while [ $# -gt 0 ]; do
