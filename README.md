@@ -7,25 +7,38 @@ Run the [cage_xtmapper.sh](./cage_xtmapper.sh) script as the regular user:
 
 
 # Features
-### Change refresh rate or FPS of waydroid
+- Change refresh rate or FPS of waydroid
 https://xtr126.github.io/XtMapper-docs/waydroid/2-fps/
-### Touchpad input
+- Touchpad input
 https://xtr126.github.io/XtMapper-docs/waydroid/3-touchpad/
-### Customize window
+- Customize window
 https://xtr126.github.io/XtMapper-docs/waydroid/4-window-customization/
-### How to fullscreen cage-xtmapper
+- How to fullscreen cage-xtmapper
 https://xtr126.github.io/XtMapper-docs/waydroid/5-fullscreen/
-### Disable colored logcat output in the terminal
+- Disable colored logcat output in the terminal
 https://xtr126.github.io/XtMapper-docs/waydroid/6-disable-logging/
+- Passthrough mouse input to waydroid instead of to XtMapper  
+Use F10 or any other key defined in  [togglekey.h](https://github.com/Xtr126/cage/blob/master/togglekey.h) to toggle between XtMapper or Waydroid handling mouse input.  
+
+# Some tips
 ### SteamOS session/ Bazzite steam gaming mode
 In desktop mode, go to Start menu > System, then right click on Konsole/Terminal and add to steam. Now you can launch Terminal or Konsole in Steam and run cage_xtmapper.sh.
-### Passthrough mouse input to waydroid instead of to XtMapper
-Use F10 or any other key defined in  [togglekey.h](https://github.com/Xtr126/cage/blob/master/togglekey.h) to toggle between XtMapper or Waydroid handling mouse input.  
-### Fix invisible cursor isssue
+
+### Fix invisible cursor issue
 Enable cursor on subsurface if cursor is invisible:
   
     waydroid prop set persist.waydroid.cursor_on_subsurface true
-Note: With cage v0.1.5 there is a two cursors on-screen issue.
+
+> [!NOTE]
+cage v0.1.5 has a two cursors on-screen issue.
+
+### Disable fake touch (persist.waydroid.fake_touch)
+If you have enabled fake touch it might [interfere with mouse movement](https://github.com/Xtr126/XtMapper/discussions/184). Clear it by running:
+    
+    waydroid prop set persist.waydroid.fake_touch ""
+
+
+
 
 # Download and install
 To download and install from [pre-builts](https://github.com/Xtr126/cage-xtmapper/releases), paste the following into a terminal.
