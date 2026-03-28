@@ -1,7 +1,7 @@
 From 5e65d5d0cf51cb4687d9d9e610855709a043a842 Mon Sep 17 00:00:00 2001
 From: Xtr126 <80520774+Xtr126@users.noreply.github.com>
 Date: Sun, 8 Dec 2024 19:30:35 +0530
-Subject: [PATCH 7/8] fix(build): Remove all session dependent code
+Subject: [PATCH 7/9] fix(build): Remove all session dependent code
 
 ---
  seat.c | 11 -----------
@@ -30,5 +30,5 @@ index 36bde68..b779539 100644
  }
  
 -- 
-2.51.0
+2.53.0
 

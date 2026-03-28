@@ -1,7 +1,7 @@
 From 5a04e2ba27c525422912f4d4dff5a75c39e1c9da Mon Sep 17 00:00:00 2001
 From: Xtr126 <k.gunetilleke@gmail.com>
 Date: Thu, 18 Sep 2025 11:41:24 +0530
-Subject: [PATCH 8/8] feat: set custom width, height and refresh from env vars
+Subject: [PATCH 8/9] feat: set custom width, height and refresh from env vars
 
 ---
  .gitignore            |  2 +-
@@ -72,5 +72,5 @@ index 5bc3907..3b4057b 160000
 -Subproject commit 5bc39071d173301eb8b2cd652c711075526dfbd9
 +Subproject commit 3b4057b3d8a84a358386ab7ed836f287c0960c8a
 -- 
-2.51.0
+2.53.0
 
