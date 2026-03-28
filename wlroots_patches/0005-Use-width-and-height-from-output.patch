@@ -1,7 +1,7 @@
-From 8d44db4d1ee3ac8ec8e3ef008e101f1044ee9211 Mon Sep 17 00:00:00 2001
+From 7fe0c024169f96f84a7fdac48281042de105e3ac Mon Sep 17 00:00:00 2001
 From: Xtr126 <k.gunetilleke@gmail.com>
 Date: Sat, 20 Sep 2025 15:17:15 +0530
-Subject: [PATCH 5/5] Use width and height from output
+Subject: [PATCH 5/6] Use width and height from output
 
 ---
  backend/wayland/backend.c | 73 +++++++++++++++++++++++++++++++++++++++
@@ -142,5 +142,5 @@ index 6ee084a6..8bc5b2fb 100644
  
  struct wlr_wl_buffer {
 -- 
-2.51.0
+2.53.0
 

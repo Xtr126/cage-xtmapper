@@ -1,7 +1,7 @@
-From c233a1d81faf5006083b5a352c3930a5c2c1a9ca Mon Sep 17 00:00:00 2001
+From 1138c5cb2f689a3e26b37e93f95d5cbc01e58ea0 Mon Sep 17 00:00:00 2001
 From: Xtr126 <k.gunetilleke@gmail.com>
 Date: Thu, 18 Sep 2025 11:37:55 +0530
-Subject: [PATCH 3/5] fix: don't fail output test if refresh rate is non-zero
+Subject: [PATCH 3/6] fix: don't fail output test if refresh rate is non-zero
 
 ---
  backend/wayland/output.c | 5 -----
@@ -41,5 +41,5 @@ index 51a8459d..221a7304 100644
  
  	return true;
 -- 
-2.51.0
+2.53.0
 

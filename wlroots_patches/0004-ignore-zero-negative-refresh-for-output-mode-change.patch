@@ -1,7 +1,7 @@
-From 8eaa3cf57cddbfcc4a220c7e429c20b3c4df929e Mon Sep 17 00:00:00 2001
+From d2bc6463e3cf0271846eebdfa8ae5a3f74fe7125 Mon Sep 17 00:00:00 2001
 From: Xtr126 <k.gunetilleke@gmail.com>
 Date: Fri, 19 Sep 2025 18:22:39 +0530
-Subject: [PATCH 4/5] ignore zero/negative refresh for output mode change
+Subject: [PATCH 4/6] ignore zero/negative refresh for output mode change
 
 ---
  types/output/output.c | 2 +-
@@ -21,5 +21,5 @@ index 818f4549..2ba64bf2 100644
  			if (output->swapchain != NULL &&
  					(output->swapchain->width != output->width ||
 -- 
-2.51.0
+2.53.0
 
