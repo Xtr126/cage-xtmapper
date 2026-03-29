@@ -1,0 +1,6 @@
+[wrap-file]
+directory = libdrm-2.4.123
+source_filename = libdrm-2.4.123.tar.xz
+
+[provide]
+libdrm = ext_libdrm

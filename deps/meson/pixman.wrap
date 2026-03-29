@@ -1,0 +1,6 @@
+[wrap-file]
+directory = pixman-0.44.0
+source_filename = pixman-0.44.0.tar.gz
+
+[provide]
+pixman-1 = idep_pixman
