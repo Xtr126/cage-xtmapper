@@ -1,6 +1,0 @@
-[wrap-file]
-directory = wayland-1.23.1
-source_filename = wayland-1.23.1.tar.xz
-
-[provide]
-wayland-server = wayland_server_dep

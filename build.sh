@@ -6,6 +6,10 @@ while [ $# -gt 0 ]; do
         shift
         dry_run=true
         ;;
+    --install-deps)
+        shift
+        install_deps=true
+        ;;
     *)
 	echo "Invalid argument"
         exit 1
@@ -19,6 +23,16 @@ exit_error() {
     echo -e "$1"
     exit 1
 }
+
+if [[ "$install_deps" == true ]]; then
+    ./install_deps.sh
+fi
+
+# Detect if dependencies are missing (at least basic ones)
+if ! command -v meson >/dev/null 2>&1 || ! command -v git >/dev/null 2>&1; then
+    echo "Required build tools (meson, git) not found. Installing dependencies..."
+    ./install_deps.sh
+fi
 
 extract_source_archive() {
     local file="$1"
@@ -38,7 +52,7 @@ else
     exit_error "build directory exists"
 fi
 
-extract_source_archive "$parent_dir"/cage-*
+extract_source_archive "$parent_dir"/deps/archives/cage-*
 
 cd cage-*
 
@@ -46,7 +60,7 @@ mkdir -p subprojects/
 
 apply_cage_patches() {
     echo "Applying cage patches"
-    for patch in "$parent_dir"/*.patch; do        
+    for patch in "$parent_dir"/patches/cage/*.patch; do        
         patch -p1 -i "$patch"
     done
 }
@@ -54,7 +68,7 @@ apply_cage_patches
 
 (   
     cd subprojects; 
-    extract_source_archive "$parent_dir"/wlroots-*.tar.gz
+    extract_source_archive "$parent_dir"/deps/archives/wlroots-*.tar.gz
     rm -rf wlroots
     mv wlroots-* wlroots
 )
@@ -62,13 +76,13 @@ apply_cage_patches
 apply_wlroots_patches() {
     cd subprojects/wlroots/
     echo "Applying wlroots patches"
-    for patch in "$parent_dir"/wlroots_patches/*.patch; do        
+    for patch in "$parent_dir"/patches/wlroots/*.patch; do        
         patch -p1 -i "$patch"
     done
     mkdir -p subprojects/packagefiles
 
-    ln -s "$parent_dir"/meson_wrapfiles/* ./subprojects/    
-    ln -s "$parent_dir"/wlroots_deps/* ./subprojects/packagefiles/  
+    ln -s "$parent_dir"/deps/meson/* ./subprojects/    
+    ln -s "$parent_dir"/deps/wlroots_deps/* ./subprojects/packagefiles/  
 }
 ( apply_wlroots_patches )
 
