@@ -24,6 +24,9 @@ Use F10 or any other key defined in  [togglekey.h](https://github.com/Xtr126/cag
 ### SteamOS session/ Bazzite steam gaming mode
 In desktop mode, go to Start menu > System, then right click on Konsole/Terminal and add to steam. Now you can launch Terminal or Konsole in Steam and run cage_xtmapper.sh.
 
+### Using cage's DRM backend
+Remove 0007-fix-build-Remove-all-session-dependent-code.patch and build. Then start cage_xtmapper.sh from a TTY.
+
 ### Fix invisible cursor issue
 Enable cursor on subsurface if cursor is invisible:
   
