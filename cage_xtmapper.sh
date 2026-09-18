@@ -53,7 +53,7 @@ BOOTCLASSPATH=/apex/com.android.art/javalib/core-oj.jar:/apex/com.android.art/ja
 sudo waydroid container start
 
 if [ "$use_adb" != 1 ]; then
-    cage_xtmapper waydroid show-full-ui | (
+    cage_xtmapper -s -m last -- waydroid show-full-ui | (
         while [[ -z $(sudo waydroid shell getprop sys.boot_completed) ]]; do
             sleep 1;
         done;
@@ -82,7 +82,7 @@ if [ "$use_adb" != 1 ]; then
 
     )
 else
-    cage_xtmapper waydroid show-full-ui | (
+    cage_xtmapper -s -m last -- waydroid show-full-ui | (
         while [[ -z $(adb wait-for-device shell getprop sys.boot_completed) ]]; do
             sleep 1;
         done;

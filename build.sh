@@ -7,9 +7,9 @@ while [ $# -gt 0 ]; do
         dry_run=true
         ;;
     *)
-	echo "Invalid argument"
+        echo "Invalid argument"
         exit 1
-	;;
+        ;;
     esac
     shift
 done
@@ -31,59 +31,59 @@ extract_source_archive() {
 
 parent_dir="$(pwd)"
 
-if ! [[ -d ./build ]]; then
-    mkdir ./build
-    cd ./build 
+mkdir -p ./build
+cd ./build
+
+if ! compgen -G "cage-*" > /dev/null; then
+    extract_source_archive "$parent_dir"/cage-*
+
+    cd cage-*
+
+    mkdir -p subprojects/
+
+    apply_cage_patches() {
+        echo "Applying cage patches"
+        for patch in "$parent_dir"/*.patch; do
+            patch -p1 -i "$patch"
+        done
+    }
+    apply_cage_patches
+
+    (
+        cd subprojects
+        extract_source_archive "$parent_dir"/wlroots-*.tar.gz
+        rm -rf wlroots
+        mv wlroots-* wlroots
+    )
+
+    apply_wlroots_patches() {
+        cd subprojects/wlroots/
+        echo "Applying wlroots patches"
+        for patch in "$parent_dir"/wlroots_patches/*.patch; do
+            patch -p1 -i "$patch"
+        done
+        mkdir -p subprojects/packagefiles
+
+        ln -s "$parent_dir"/meson_wrapfiles/* ./subprojects/
+        ln -s "$parent_dir"/wlroots_deps/* ./subprojects/packagefiles/
+    }
+    (
+        apply_wlroots_patches
+    )
 else
-    exit_error "build directory exists"
+    cd cage-*
 fi
 
-extract_source_archive "$parent_dir"/cage-*
-
-cd cage-*
-
-mkdir -p subprojects/
-
-apply_cage_patches() {
-    echo "Applying cage patches"
-    for patch in "$parent_dir"/*.patch; do        
-        patch -p1 -i "$patch"
-    done
-}
-apply_cage_patches 
-
-(   
-    cd subprojects; 
-    extract_source_archive "$parent_dir"/wlroots-*.tar.gz
-    rm -rf wlroots
-    mv wlroots-* wlroots
-)
-
-apply_wlroots_patches() {
-    cd subprojects/wlroots/
-    echo "Applying wlroots patches"
-    for patch in "$parent_dir"/wlroots_patches/*.patch; do        
-        patch -p1 -i "$patch"
-    done
-    mkdir -p subprojects/packagefiles
-
-    ln -s "$parent_dir"/meson_wrapfiles/* ./subprojects/    
-    ln -s "$parent_dir"/wlroots_deps/* ./subprojects/packagefiles/  
-}
-( apply_wlroots_patches )
-
-meson setup build \
+meson setup --reconfigure  build \
     --buildtype=release \
     -Ddefault_library=static \
-    -Dprefix=/usr/local 
+    -Dprefix=/usr/local
 
-if [[ -z $dry_run ]]; then 
+if [[ -z $dry_run ]]; then
     meson compile -C build
     meson install -C build --destdir "$parent_dir"/build/installed
     cd "$parent_dir"/build/installed
     cp "$parent_dir"/cage_xtmapper.sh usr/local/bin
     chmod a+x usr/local/bin/cage_xtmapper.sh
-    rm -r usr/local/{lib*,include}  
+    rm -r usr/local/{lib*,include}
 fi
-
-

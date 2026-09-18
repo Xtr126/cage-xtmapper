@@ -42,7 +42,7 @@ index 45b3f91..aaff785 100644
 -wlroots        = dependency('wlroots', version: '>= 0.17.0', fallback: ['wlroots', 'wlroots'])
 +wlroots_proj = subproject(
 +  'wlroots',
-+  default_options: ['examples=false', 'xwayland=disabled', 'backends=x11'],
++  default_options: ['examples=false', 'xwayland=disabled'],
 +)
 +
 +wlroots        = wlroots_proj.get_variable('wlroots')
