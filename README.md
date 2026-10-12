@@ -47,14 +47,19 @@ If you have enabled fake touch it might [interfere with mouse movement](https://
 To download and install from [pre-builts](https://github.com/Xtr126/cage-xtmapper/releases), paste the following into a terminal.
 
 ### Step 1
-Download v0.2.0 - For modern distros with wlroots v0.18 or newer - Ubuntu 25.04 (plucky), Debian Sid, Arch, Fedora, Alpine
+Download v0.3.0 - Cage 0.3.0 with wlroots 0.20.2 for newer distributions: Arch, Fedora 44+
+
+    curl -fOL --retry 3 --retry-delay 3  "https://github.com/Xtr126/cage-xtmapper/releases/latest/download/cage-xtmapper-v0.3.0.tar"
+
+Download v0.2.0 - Cage 0.2.0 with wlroots 0.18.3: Debian 13, Ubuntu 25/26
 
     curl -fOL --retry 3 --retry-delay 3  "https://github.com/Xtr126/cage-xtmapper/releases/latest/download/cage-xtmapper-v0.2.0.tar"
 
-Download v0.1.5 - For slightly older distros with wlroots v0.17.x - Ubuntu 24.04 (noble), Debian 13 (Trixie)
+Download v0.1.5 - Cage 0.1.5 with wlroots 0.17.x for older distributions: Ubuntu 24.04 (noble), Debian 13 (Trixie)
 
     curl -fOL --retry 3 --retry-delay 3  "https://github.com/Xtr126/cage-xtmapper/releases/latest/download/cage-xtmapper-v0.1.5.tar"
 
+You will encounter compile-time errors by picking the wrong version.
 ### Step 2
 To install from the downloaded tarball:
 
@@ -71,18 +76,56 @@ To install from the downloaded tarball:
 - Ubuntu/Debian `sudo apt build-dep wlroots`
 
 > [!IMPORTANT]
-Two branches are maintained.  
-v0.2.0 - For modern distros with wlroots v0.18 or newer - Ubuntu 25.04 (plucky), Debian Sid, Arch, Fedora, Alpine   
-v0.1.5 - For slightly older distros with wlroots v0.17.x - Ubuntu 24.04 (noble), Debian 13 (Trixie)
+Three branches are maintained:
 
-Replace `<branch>` below with either v0.2.0 or v0.1.5
+- `v0.3.0` builds Cage 0.3.0 with wlroots 0.20.2. It needs Wayland 1.24+, wayland-protocols 1.47+, libdrm 2.4.129+, libxkbcommon 1.8+, and Pixman 0.46+. Use it for distributions whose system packages meet these versions; the build also includes pinned fallback sources for these libraries.
+- `v0.2.0` builds Cage 0.2.0 with wlroots 0.18.3.
+- `v0.1.5` builds Cage 0.1.5 with wlroots 0.17.x.
+
+Choose the branch that matches the distribution you need to support.
 
     git clone https://github.com/Xtr126/cage-xtmapper -b <branch>
     cd cage-xtmapper
     ./build.sh
-If build fails, check if upstream cage and wlroots source code can build normally on your system:  
-Cage: https://github.com/cage-kiosk/cage  
-wlroots: https://gitlab.freedesktop.org/wlroots
+
+## Reproducible inputs and patch maintenance
+
+The build uses the checked-in Cage and wlroots source archives, wlroots dependency archives, Meson wrap files, and patch series. Verify the vendored archives from the repository root with:
+
+    sha256sum --check SHA256SUMS
+
+`SHA256SUMS` records the SHA-256 digest for each source and dependency archive. Update it whenever an archive is intentionally replaced, and review the corresponding version and source URL in the wrap files and this documentation.
+
+The Cage patches in each maintained branch are exported from the corresponding development branch. Cage 0.3.0 development is maintained in [Xtr126/cage](https://github.com/Xtr126/cage), branch `codex/xtmapper-v0.3.0`, based on upstream Cage 0.3.0. The older 0.2 line uses branch `rebased-v0.2.0`, on Cage 0.2.0. Regenerate the 0.3 series from the `Xtr126/cage` checkout with:
+
+    cd /path/to/cage
+    git format-patch --output-directory /tmp/cage-xtmapper-patches 3783af4..codex/xtmapper-v0.3.0
+
+The root-level `000*.patch` files and `cage-0.3.0.tar.gz` belong to the 0.3 line. Keep the 0.2 patch series on its own branch.
+
+The wlroots patches in this branch are maintained in [Xtr126/wlroots-xtmapper](https://github.com/Xtr126/wlroots-xtmapper), branch `codex/xtmapper-v0.20.2`. Regenerate them from the wlroots 0.20.2 tag:
+
+    cd /path/to/wlroots-xtmapper
+    git format-patch --output-directory /tmp/cage-xtmapper-wlroots-patches 0.20.2..codex/xtmapper-v0.20.2
+
+The `Xtr126/wlroots-xtmapper` fork also carries the 0.18.3 line on branch `codex/xtmapper-v0.18.3`. Keep each patch series with its matching source archive and branch. After changing archives, patches, wraps, or dependency inputs, remove the prepared `build/cage-*` source directory before rebuilding so the new inputs are applied.
+
+### Push the prepared branches to GitHub
+
+The commits are ready locally. Set the GitHub repositories as `origin` in each checkout and push the version branches:
+
+    cd /path/to/cage
+    git remote add origin https://github.com/Xtr126/cage.git
+    git push -u origin codex/xtmapper-v0.3.0
+
+    cd /path/to/wlroots-xtmapper
+    git remote add origin https://github.com/Xtr126/wlroots-xtmapper.git
+    git push -u origin codex/xtmapper-v0.20.2
+    git push -u origin codex/xtmapper-v0.18.3
+
+If `origin` already exists, update its URL with `git remote set-url origin <URL>` instead of adding it. Push each branch only after checking out that branch if you want to verify or continue its changes locally.
+
+Pull requests run archive checksum verification, ShellCheck, shell syntax checks, and mocked build and launcher checks. Release packaging runs separately for a version tag and attaches `cage-xtmapper-<tag>.tar` to a draft release for that tag. It does not replace an asset with the same name.
 
 ### Install the built binary and the script to /usr/local/bin.  
 Run from within the cage-xtmapper directory after building:

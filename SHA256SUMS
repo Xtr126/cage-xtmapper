@@ -1,0 +1,10 @@
+f32e6885444e365de3bc076d307c20eff59ee42ed0237219eebd3d2fe597e289  cage-0.3.0.tar.gz
+972c7ac44b17828f4702bfae7cd8347346a3fb5b2c1076cfa2c3fcedac5ec343  wlroots-0.20.2.tar.gz
+f7331fcaf5527251b84c8fb84238d06cd2f458422ce950c80e86c72927aa8c2b  wlroots_deps/libdisplay-info-0.2.0.tar.gz
+a8392cc02ecfc573567b9dbba76e3a525ed9413b9a16309c3d3e28c65503a974  wlroots_deps/libdrm-2.4.129.tar.gz
+e4a23ce44d5ad32e7eee9b9dd34376d7435ce9654753943baac253b3b01d1875  wlroots_deps/libliftoff-0.5.0.tar.gz
+66d2db6f34c8e2017a41a8b1391a4b071bfab0e7f0a7e0c0a5f1652455c9095f  wlroots_deps/libxkbcommon-1.8.0.tar.gz
+a68dac22a999522d74b632b686c1a6b7c2549e0ef563a932ed74410a06ee2572  wlroots_deps/pixman-0.46.0.tar.gz
+819979c922a0be258aed133d93920bce6a3d3565a60588d6d372ce9db2712cd3  wlroots_deps/seatd-0.9.1.tar.gz
+7800858844751fc7113d7df3678dc6b58b26a056176a65c49a059763045bffd5  wlroots_deps/wayland-1.24.0.tar.gz
+dd2df14ab5f41038257aaedcc4b5fb9ac0ee018f3f0f94af9097028e60d33223  wlroots_deps/wayland-protocols-1.47.tar.gz

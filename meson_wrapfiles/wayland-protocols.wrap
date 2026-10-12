@@ -1,6 +1,7 @@
 [wrap-file]
-directory = wayland-protocols-1.38
-source_filename = wayland-protocols-1.38.tar.xz
+directory = wayland-protocols-1.47
+source_filename = wayland-protocols-1.47.tar.gz
+source_hash = dd2df14ab5f41038257aaedcc4b5fb9ac0ee018f3f0f94af9097028e60d33223
 
 [provide]
 wayland-protocols = wayland_protocols

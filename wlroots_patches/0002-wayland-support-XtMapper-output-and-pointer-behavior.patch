@@ -1,0 +1,234 @@
+From cd59bb46568e491b58574c5bc6fb24b97a32ae8f Mon Sep 17 00:00:00 2001
+From: Xtr126 <k.gunetilleke@gmail.com>
+Date: Mon, 12 Oct 2026 14:22:40 +0530
+Subject: [PATCH 2/2] wayland: support XtMapper output and pointer behavior
+
+---
+ backend/wayland/backend.c   | 58 ++++++++++++++++++++++++++++++++++++-
+ backend/wayland/meson.build |  1 +
+ backend/wayland/output.c    |  2 +-
+ backend/wayland/pointer.c   | 21 ++++++++++++--
+ include/backend/wayland.h   |  4 +++
+ 5 files changed, 81 insertions(+), 5 deletions(-)
+
+diff --git a/backend/wayland/backend.c b/backend/wayland/backend.c
+index 14a783b6..b8395e65 100644
+--- a/backend/wayland/backend.c
++++ b/backend/wayland/backend.c
+@@ -2,6 +2,7 @@
+ #include <fcntl.h>
+ #include <limits.h>
+ #include <stdint.h>
++#include <stdio.h>
+ #include <stdlib.h>
+ #include <sys/mman.h>
+ #include <sys/types.h>
+@@ -30,6 +31,8 @@
+ #include "tablet-v2-client-protocol.h"
+ #include "relative-pointer-unstable-v1-client-protocol.h"
+ #include "viewporter-client-protocol.h"
++#include "pointer-constraints-unstable-v1-client-protocol.h"
++#include "util/env.h"
+ 
+ struct wlr_wl_linux_dmabuf_feedback_v1 {
+ 	struct wlr_wl_backend *backend;
+@@ -348,6 +351,45 @@ static const struct wl_shm_listener shm_listener = {
+ 	.format = shm_handle_format,
+ };
+ 
++static void output_handle_mode(void *data, struct wl_output *wl_output,
++		uint32_t flags, int32_t width, int32_t height, int32_t refresh) {
++	struct wlr_wl_backend *wl = data;
++	if (!(flags & WL_OUTPUT_MODE_CURRENT)) {
++		return;
++	}
++
++	if (getenv("XTMAPPER_PRINT_OUTPUT_INFO") != NULL) {
++		fprintf(stderr, "Output mode: %dx%d at %d mHz (%.1f Hz)\n",
++			width, height, refresh, refresh / 1000.0);
++	}
++
++	if (getenv("XTMAPPER_WIDTH") == NULL &&
++		getenv("XTMAPPER_HEIGHT") == NULL) {
++		wl->width = width;
++		wl->height = height;
++	}
++}
++
++static void output_handle_geometry(void *data, struct wl_output *wl_output,
++		int32_t x, int32_t y, int32_t physical_width,
++		int32_t physical_height, int32_t subpixel,
++		const char *make, const char *model, int32_t transform) {
++}
++
++static void output_handle_done(void *data, struct wl_output *wl_output) {
++}
++
++static void output_handle_scale(void *data, struct wl_output *wl_output,
++		int32_t scale) {
++}
++
++static const struct wl_output_listener output_listener = {
++	.geometry = output_handle_geometry,
++	.mode = output_handle_mode,
++	.done = output_handle_done,
++	.scale = output_handle_scale,
++};
++
+ static void registry_global(void *data, struct wl_registry *registry,
+ 		uint32_t name, const char *iface, uint32_t version) {
+ 	struct wlr_wl_backend *wl = data;
+@@ -375,7 +417,7 @@ static void registry_global(void *data, struct wl_registry *registry,
+ 			&xdg_wm_base_interface, 1);
+ 		xdg_wm_base_add_listener(wl->xdg_wm_base, &xdg_wm_base_listener, NULL);
+ 	} else if (strcmp(iface, zxdg_decoration_manager_v1_interface.name) == 0) {
+-		wl->zxdg_decoration_manager_v1 = wl_registry_bind(registry, name,
++		if (!env_parse_bool("WLR_NO_DECORATION")) wl->zxdg_decoration_manager_v1 = wl_registry_bind(registry, name,
+ 			&zxdg_decoration_manager_v1_interface, 1);
+ 	} else if (strcmp(iface, zwp_pointer_gestures_v1_interface.name) == 0) {
+ 		wl->zwp_pointer_gestures_v1 = wl_registry_bind(registry, name,
+@@ -416,6 +458,15 @@ static void registry_global(void *data, struct wl_registry *registry,
+ 	} else if (strcmp(iface, wp_viewporter_interface.name) == 0) {
+ 		wl->viewporter = wl_registry_bind(registry, name,
+ 			&wp_viewporter_interface, 1);
++	} else if (strcmp(iface, wl_output_interface.name) == 0) {
++		struct wl_output *output = wl_registry_bind(registry, name,
++			&wl_output_interface, version >= 3 ? 3 : version);
++		if (output != NULL) {
++			wl_output_add_listener(output, &output_listener, wl);
++		}
++	} else if (strcmp(iface, zwp_pointer_constraints_v1_interface.name) == 0) {
++		wl->pointer_constraints = wl_registry_bind(registry, name,
++			&zwp_pointer_constraints_v1_interface, 1);
+ 	} else if (strcmp(iface, wp_linux_drm_syncobj_manager_v1_interface.name) == 0) {
+ 		wl->drm_syncobj_manager_v1 = wl_registry_bind(registry, name,
+ 			&wp_linux_drm_syncobj_manager_v1_interface, 1);
+@@ -553,6 +604,9 @@ static void backend_destroy(struct wlr_backend *backend) {
+ 	if (wl->viewporter) {
+ 		wp_viewporter_destroy(wl->viewporter);
+ 	}
++	if (wl->pointer_constraints) {
++		zwp_pointer_constraints_v1_destroy(wl->pointer_constraints);
++	}
+ 	free(wl->drm_render_name);
+ 	free(wl->activation_token);
+ 	xdg_wm_base_destroy(wl->xdg_wm_base);
+@@ -597,6 +651,8 @@ struct wlr_backend *wlr_wl_backend_create(struct wl_event_loop *loop,
+ 	}
+ 
+ 	wlr_backend_init(&wl->backend, &backend_impl);
++	wl->width = 1280;
++	wl->height = 720;
+ 
+ 	wl->event_loop = loop;
+ 	wl_list_init(&wl->outputs);
+diff --git a/backend/wayland/meson.build b/backend/wayland/meson.build
+index b606a9bb..d961225e 100644
+--- a/backend/wayland/meson.build
++++ b/backend/wayland/meson.build
+@@ -17,6 +17,7 @@ client_protos = [
+ 	'linux-drm-syncobj-v1',
+ 	'pointer-gestures-unstable-v1',
+ 	'presentation-time',
++	'pointer-constraints-unstable-v1',
+ 	'relative-pointer-unstable-v1',
+ 	'tablet-v2',
+ 	'viewporter',
+diff --git a/backend/wayland/output.c b/backend/wayland/output.c
+index 6cbd7fb0..f09bb4bd 100644
+--- a/backend/wayland/output.c
++++ b/backend/wayland/output.c
+@@ -1105,7 +1105,7 @@ static struct wlr_wl_output *output_create(struct wlr_wl_backend *backend,
+ 
+ 	struct wlr_output_state state;
+ 	wlr_output_state_init(&state);
+-	wlr_output_state_set_custom_mode(&state, 1280, 720, 0);
++	wlr_output_state_set_custom_mode(&state, backend->width, backend->height, 0);
+ 
+ 	wlr_output_init(wlr_output, &backend->backend, &output_impl,
+ 		backend->event_loop, &state);
+diff --git a/backend/wayland/pointer.c b/backend/wayland/pointer.c
+index b61e32cd..c63d7897 100644
+--- a/backend/wayland/pointer.c
++++ b/backend/wayland/pointer.c
+@@ -8,6 +8,7 @@
+ 
+ #include "pointer-gestures-unstable-v1-client-protocol.h"
+ #include "relative-pointer-unstable-v1-client-protocol.h"
++#include "pointer-constraints-unstable-v1-client-protocol.h"
+ 
+ static struct wlr_wl_pointer *output_get_pointer(struct wlr_wl_output *output,
+ 		const struct wl_pointer *wl_pointer) {
+@@ -55,6 +56,12 @@ static void pointer_handle_enter(void *data, struct wl_pointer *wl_pointer,
+ 	output->enter_serial = serial;
+ 	output->cursor.pointer = pointer;
+ 	update_wl_output_cursor(output);
++	if (output->backend->pointer_constraints != NULL) {
++		pointer->confined_pointer = zwp_pointer_constraints_v1_confine_pointer(
++			output->backend->pointer_constraints, output->surface,
++			seat->wl_pointer, NULL,
++			ZWP_POINTER_CONSTRAINTS_V1_LIFETIME_PERSISTENT);
++	}
+ }
+ 
+ static void pointer_handle_leave(void *data, struct wl_pointer *wl_pointer,
+@@ -69,15 +76,20 @@ static void pointer_handle_leave(void *data, struct wl_pointer *wl_pointer,
+ 		return;
+ 	}
+ 
+-	if (seat->active_pointer != NULL &&
+-			seat->active_pointer->output == output) {
++	struct wlr_wl_pointer *pointer = seat->active_pointer;
++	if (pointer != NULL && pointer->output == output) {
+ 		seat->active_pointer = NULL;
+ 	}
+ 
+-	if (output->cursor.pointer == seat->active_pointer) {
++	if (output->cursor.pointer == pointer) {
+ 		output->enter_serial = 0;
+ 		output->cursor.pointer = NULL;
+ 	}
++	if (pointer != NULL && pointer->output == output &&
++			pointer->confined_pointer != NULL) {
++		zwp_confined_pointer_v1_destroy(pointer->confined_pointer);
++		pointer->confined_pointer = NULL;
++	}
+ }
+ 
+ static void pointer_handle_motion(void *data, struct wl_pointer *wl_pointer,
+@@ -427,6 +439,9 @@ const struct wlr_pointer_impl wl_pointer_impl = {
+ };
+ 
+ static void destroy_pointer(struct wlr_wl_pointer *pointer) {
++	if (pointer->confined_pointer != NULL) {
++		zwp_confined_pointer_v1_destroy(pointer->confined_pointer);
++	}
+ 	if (pointer->output->cursor.pointer == pointer) {
+ 		pointer->output->cursor.pointer = NULL;
+ 	}
+diff --git a/include/backend/wayland.h b/include/backend/wayland.h
+index e24eb9fd..a8974163 100644
+--- a/include/backend/wayland.h
++++ b/include/backend/wayland.h
+@@ -53,7 +53,10 @@ struct wlr_wl_backend {
+ 	struct xdg_activation_v1 *activation_v1;
+ 	struct wl_subcompositor *subcompositor;
+ 	struct wp_viewporter *viewporter;
++	struct zwp_pointer_constraints_v1 *pointer_constraints;
+ 	char *drm_render_name;
++	int32_t width;
++	int32_t height;
+ };
+ 
+ struct wlr_wl_buffer {
+@@ -147,6 +150,7 @@ struct wlr_wl_pointer {
+ 	struct wl_listener output_destroy;
+ 
+ 	struct wl_list link;
++	struct zwp_confined_pointer_v1 *confined_pointer;
+ };
+ 
+ struct wlr_wl_touch_points {
+-- 
+2.56.0
+

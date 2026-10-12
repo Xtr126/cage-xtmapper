@@ -1,7 +1,7 @@
-From 5e697fe72d7b9ba3a385f444fce08894be6250ba Mon Sep 17 00:00:00 2001
+From 866d0c9085d9bb3610b1f1ac2042abed58037aaa Mon Sep 17 00:00:00 2001
 From: Xtr126 <80520774+Xtr126@users.noreply.github.com>
 Date: Thu, 11 Jul 2024 08:03:32 +0530
-Subject: [PATCH 5/9] Add toggle key
+Subject: [PATCH 5/8] Add toggle key
 
 ---
  seat.c      | 79 ++++++++++++++++++++++++++++++++++++++++-------------
@@ -11,7 +11,7 @@ Subject: [PATCH 5/9] Add toggle key
  create mode 100644 togglekey.h
 
 diff --git a/seat.c b/seat.c
-index 1af3506..9135721 100644
+index 2bb1fc0..a543840 100644
 --- a/seat.c
 +++ b/seat.c
 @@ -14,6 +14,7 @@
@@ -46,7 +46,7 @@ index 1af3506..9135721 100644
      }
  
  }
-@@ -610,27 +617,42 @@ static void
+@@ -620,27 +627,42 @@ static void
  handle_cursor_axis(struct wl_listener *listener, void *data)
  {
  	struct wlr_pointer_axis_event *event = data;
@@ -102,7 +102,7 @@ index 1af3506..9135721 100644
  }
  
  static void
-@@ -672,17 +694,35 @@ handle_cursor_motion_absolute(struct wl_listener *listener, void *data)
+@@ -682,17 +704,35 @@ handle_cursor_motion_absolute(struct wl_listener *listener, void *data)
  	double lx, ly;
  	wlr_cursor_absolute_to_layout_coords(seat->cursor, &event->pointer->base, event->x, event->y, &lx, &ly);
  
@@ -142,7 +142,7 @@ index 1af3506..9135721 100644
  }
  
  static void
-@@ -899,6 +939,7 @@ seat_create(struct cg_server *server, struct wlr_backend *backend)
+@@ -909,6 +949,7 @@ seat_create(struct cg_server *server, struct wlr_backend *backend)
  	seat->start_drag.notify = handle_start_drag;
  	wl_signal_add(&seat->seat->events.start_drag, &seat->start_drag);
  
@@ -188,5 +188,5 @@ index 0000000..cf21ecc
 +*/
 +#define TOGGLEKEY "KEY_F10"
 -- 
-2.53.0
+2.56.0
 

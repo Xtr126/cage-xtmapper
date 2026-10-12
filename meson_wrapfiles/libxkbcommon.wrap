@@ -1,6 +1,7 @@
 [wrap-file]
-directory = libxkbcommon-1.7.0
-source_filename = libxkbcommon-1.7.0.tar.xz
+directory = libxkbcommon-1.8.0
+source_filename = libxkbcommon-1.8.0.tar.gz
+source_hash = 66d2db6f34c8e2017a41a8b1391a4b071bfab0e7f0a7e0c0a5f1652455c9095f
 
 [provide]
 xkbcommon = dep_libxkbcommon
