@@ -5,10 +5,8 @@ on:
     paths:
       - 'build.sh'
       - 'cage_xtmapper.sh'
-      - 'cage-*.tar.gz'
-      - 'wlroots-*.tar.gz'
-      - '*.patch'
-      - 'wlroots_patches/**'
+      - 'forks/**'
+      - '.gitmodules'
       - 'wlroots_deps/**'
       - 'meson_wrapfiles/**'
       - 'tests/**'
@@ -18,10 +16,8 @@ on:
     paths:
       - 'build.sh'
       - 'cage_xtmapper.sh'
-      - 'cage-*.tar.gz'
-      - 'wlroots-*.tar.gz'
-      - '*.patch'
-      - 'wlroots_patches/**'
+      - 'forks/**'
+      - '.gitmodules'
       - 'wlroots_deps/**'
       - 'meson_wrapfiles/**'
       - 'tests/**'
@@ -37,8 +33,10 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
-      - name: Verify vendored source archives
+      - name: Verify vendored dependency archives
         run: sha256sum --check SHA256SUMS
 
       - name: Install ShellCheck

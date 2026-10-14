@@ -35,107 +35,91 @@ done
 
 script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
 build_root="$script_dir/build"
+source_root="$build_root/source"
+source_dir="$source_root/cage-0.3.0"
+meson_build_dir="$build_root/meson"
 prepared_marker='.cage-xtmapper-prepared'
+cage_checkout="$script_dir/forks/cage"
+wlroots_checkout="$script_dir/forks/wlroots-xtmapper"
 
 fail() {
     echo "build.sh: $*" >&2
     exit 1
 }
 
-single_match() {
-    local description="$1"
-    shift
-    local matches=("$@")
-    ((${#matches[@]} == 1)) || fail "Expected exactly one $description; found ${#matches[@]}"
-    [[ -f "${matches[0]}" ]] || fail "Missing $description: ${matches[0]}"
-    printf '%s\n' "${matches[0]}"
+require_checkout() {
+    local name="$1" path="$2" checkout_root expected_root
+    [[ -d "$path" ]] || fail "$name submodule is missing at $path. Clone with --recurse-submodules or run 'git submodule update --init --recursive'."
+    git -C "$path" rev-parse --is-inside-work-tree >/dev/null 2>&1 || fail "$name submodule is not initialized at $path. Run 'git submodule update --init --recursive'."
+    checkout_root="$(git -C "$path" rev-parse --show-toplevel)"
+    expected_root="$(cd -- "$path" && pwd -P)"
+    [[ "$checkout_root" == "$expected_root" ]] || fail "$name submodule is not initialized at $path. Run 'git submodule update --init --recursive'."
 }
+
+require_checkout Cage "$cage_checkout"
+require_checkout wlroots "$wlroots_checkout"
+
+require_pinned_commit() {
+    local name="$1" relative_path="$2" checkout="$3" entry mode pinned_commit stage current_commit
+    entry="$(git -C "$script_dir" ls-files --stage -- "$relative_path")"
+    [[ -n "$entry" ]] || fail "$name submodule is not recorded in the parent index at $relative_path"
+    read -r mode pinned_commit stage _ <<<"$entry"
+    [[ "$mode" == 160000 && "$stage" == 0 ]] || fail "$name path $relative_path is not a resolved submodule gitlink"
+    current_commit="$(git -C "$checkout" rev-parse HEAD)"
+    [[ "$current_commit" == "$pinned_commit" ]] || fail "$name checkout is at $current_commit but the parent pins $pinned_commit; update the parent gitlink before building"
+    [[ -z "$(git -C "$checkout" status --porcelain)" ]] || fail "$name checkout has uncommitted changes; commit them before building the pinned source"
+}
+
+require_pinned_commit Cage forks/cage "$cage_checkout"
+require_pinned_commit wlroots forks/wlroots-xtmapper "$wlroots_checkout"
+
+shopt -s nullglob
+wrapfiles=("$script_dir"/meson_wrapfiles/*)
+dependencies=("$script_dir"/wlroots_deps/*)
+((${#wrapfiles[@]} > 0)) || fail "No Meson wrap files found"
+((${#dependencies[@]} > 0)) || fail "No wlroots dependency archives found"
 
 input_fingerprint() {
-    local files=(
-        "$script_dir"/cage-*.tar.gz
-        "$script_dir"/wlroots-*.tar.gz
-        "$script_dir"/*.patch
-        "$script_dir"/wlroots_patches/*.patch
-        "$script_dir"/meson_wrapfiles/*
-        "$script_dir"/wlroots_deps/*
-    )
-    ((${#files[@]} > 0)) || fail "No build inputs found"
-    sha256sum -- "${files[@]}" | sha256sum | cut -d ' ' -f 1
+    {
+        git -C "$cage_checkout" rev-parse HEAD
+        git -C "$wlroots_checkout" rev-parse HEAD
+        sha256sum -- "${wrapfiles[@]}" "${dependencies[@]}"
+    } | sha256sum | cut -d ' ' -f 1
 }
 
-extract_archive() {
-    local archive="$1"
-    echo "Extracting $(basename -- "$archive")"
-    tar -xf "$archive" -C "$2" || fail "Failed to extract $archive"
+extract_git_tree() {
+    local checkout="$1" destination="$2" description="$3"
+    echo "Assembling $description from $(git -C "$checkout" rev-parse --short HEAD)"
+    mkdir -p -- "$destination"
+    git -C "$checkout" archive --format=tar HEAD | tar -xf - -C "$destination" || fail "Failed to assemble $description from $checkout"
 }
 
 mkdir -p -- "$build_root"
-shopt -s nullglob
-cage_candidates=("$build_root"/cage-*)
-cage_dirs=()
-for path in "${cage_candidates[@]}"; do
-    [[ -d "$path" ]] && cage_dirs+=("$path")
-done
-if ((${#cage_dirs[@]} > 1)); then
-    fail "Found multiple extracted cage source directories under $build_root"
-fi
-
-if ((${#cage_dirs[@]} == 1)); then
-    source_dir="${cage_dirs[0]}"
-    [[ -f "$source_dir/$prepared_marker" ]] || fail "Found incomplete source preparation at $source_dir. Remove that directory and rerun build.sh."
-    current_fingerprint=$(input_fingerprint)
-    prepared_fingerprint=$(<"$source_dir/$prepared_marker")
-    [[ "$prepared_fingerprint" == "$current_fingerprint" ]] || fail "Build inputs changed since source preparation at $source_dir. Remove that directory and rerun build.sh."
-    [[ -d "$source_dir/subprojects/wlroots/subprojects/packagefiles" ]] || fail "Prepared source tree is incomplete at $source_dir; remove it and rerun build.sh."
+current_fingerprint="$(input_fingerprint)"
+if [[ -d "$source_dir" && -f "$source_dir/$prepared_marker" ]]; then
+    prepared_fingerprint="$(<"$source_dir/$prepared_marker")"
 else
-    cage_archive="$(single_match 'cage source archive' "$script_dir"/cage-*.tar.gz)"
-    wlroots_archive="$(single_match 'wlroots source archive' "$script_dir"/wlroots-*.tar.gz)"
-    mkdir -p -- "$build_root/.prepare"
-    prepare_dir="$build_root/.prepare"
-    extract_archive "$cage_archive" "$prepare_dir"
-    extracted_cage=("$prepare_dir"/cage-*)
-    ((${#extracted_cage[@]} == 1)) && [[ -d "${extracted_cage[0]}" ]] || fail "Cage archive must contain exactly one cage-* directory"
-    source_dir="$build_root/${extracted_cage[0]##*/}"
-    mv -- "${extracted_cage[0]}" "$source_dir"
-    rmdir -- "$prepare_dir"
-
-    mkdir -p -- "$source_dir/subprojects"
-    cage_patches=("$script_dir"/*.patch)
-    ((${#cage_patches[@]} > 0)) || fail "No cage patches found in $script_dir"
-    echo "Applying cage patches"
-    for patch_file in "${cage_patches[@]}"; do
-        patch -p1 -i "$patch_file" -d "$source_dir"
-    done
-
-    wlroots_parent="$source_dir/subprojects"
-    extract_archive "$wlroots_archive" "$wlroots_parent"
-    wlroots_dirs=("$wlroots_parent"/wlroots-*)
-    ((${#wlroots_dirs[@]} == 1)) && [[ -d "${wlroots_dirs[0]}" ]] || fail "wlroots archive must contain exactly one wlroots-* directory"
-    mv -- "${wlroots_dirs[0]}" "$wlroots_parent/wlroots"
-
-    mkdir -p -- "$wlroots_parent/wlroots/subprojects/packagefiles"
-    wlroots_patches=("$script_dir"/wlroots_patches/*.patch)
-    wrapfiles=("$script_dir"/meson_wrapfiles/*)
-    dependencies=("$script_dir"/wlroots_deps/*)
-    ((${#wlroots_patches[@]} > 0)) || fail "No wlroots patches found"
-    ((${#wrapfiles[@]} > 0)) || fail "No Meson wrap files found"
-    ((${#dependencies[@]} > 0)) || fail "No wlroots dependency archives found"
-    echo "Applying wlroots patches"
-    for patch_file in "${wlroots_patches[@]}"; do
-        patch -p1 -i "$patch_file" -d "$wlroots_parent/wlroots"
-    done
-    cp -- "${wrapfiles[@]}" "$wlroots_parent/wlroots/subprojects/"
-    ln -sf "${dependencies[@]}" "$wlroots_parent/wlroots/subprojects/packagefiles/"
-    input_fingerprint > "$source_dir/$prepared_marker"
+    prepared_fingerprint=''
 fi
 
-cd -- "$source_dir"
+if [[ "$prepared_fingerprint" != "$current_fingerprint" ]]; then
+    rm -rf -- "$source_dir"
+    rm -rf -- "$meson_build_dir"
+    mkdir -p -- "$source_dir/subprojects/wlroots/subprojects/packagefiles"
+    extract_git_tree "$cage_checkout" "$source_dir" Cage
+    extract_git_tree "$wlroots_checkout" "$source_dir/subprojects/wlroots" wlroots
+    cp -- "${wrapfiles[@]}" "$source_dir/subprojects/wlroots/subprojects/"
+    ln -sf -- "${dependencies[@]}" "$source_dir/subprojects/wlroots/subprojects/packagefiles/"
+    printf '%s\n' "$current_fingerprint" > "$source_dir/$prepared_marker"
+elif [[ ! -d "$source_dir/subprojects/wlroots/subprojects/packagefiles" ]]; then
+    fail "Prepared source tree is incomplete at $source_dir; remove it and rerun build.sh."
+fi
+
 meson_setup_args=(--buildtype=release -Ddefault_library=static -Dprefix=/usr/local)
-if [[ -f build/meson-private/coredata.dat ]]; then
-    meson setup --reconfigure build "${meson_setup_args[@]}"
+if [[ -f "$meson_build_dir/meson-private/coredata.dat" ]]; then
+    meson setup --reconfigure "$meson_build_dir" "$source_dir" "${meson_setup_args[@]}"
 else
-    meson setup build "${meson_setup_args[@]}"
+    meson setup "$meson_build_dir" "$source_dir" "${meson_setup_args[@]}"
 fi
 
 if [[ "$dry_run" == true ]]; then
@@ -143,8 +127,8 @@ if [[ "$dry_run" == true ]]; then
     exit 0
 fi
 
-meson compile -C build
-meson install -C build --destdir "$build_root/installed"
+meson compile -C "$meson_build_dir"
+meson install -C "$meson_build_dir" --destdir "$build_root/installed"
 installed_bin="$build_root/installed/usr/local/bin"
 [[ -d "$installed_bin" ]] || fail "Meson install did not create $installed_bin"
 cp -- "$script_dir/cage_xtmapper.sh" "$installed_bin/"

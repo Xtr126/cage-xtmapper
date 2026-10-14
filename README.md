@@ -25,7 +25,7 @@ Use F10 or any other key defined in  [togglekey.h](https://github.com/Xtr126/cag
 In desktop mode, go to Start menu > System, then right click on Konsole/Terminal and add to steam. Now you can launch Terminal or Konsole in Steam and run cage_xtmapper.sh.
 
 ### Using cage's DRM backend
-Remove 0007-fix-build-Remove-all-session-dependent-code.patch and build. Then start cage_xtmapper.sh from a TTY.
+To use Cage's DRM backend, start `cage_xtmapper.sh` from a TTY. The maintained Cage fork removes session-dependent seat setup; to change that behavior, edit `seat.c` in the Cage fork, commit it, update the submodule pin, and rebuild.
 
 ### Fix invisible cursor issue
 Enable cursor on subsurface if cursor is invisible:
@@ -72,7 +72,7 @@ To install from the downloaded tarball:
 **Cage dependencies**  
 - [Arch](https://github.com/cage-kiosk/cage/blob/eaeab71ffa3ab5884df09c5664c00e368ca2585e/.github/workflows/main.yml#L32) `pacman -Syu xcb-util-wm seatd git clang meson libinput libdrm mesa libxkbcommon wayland wayland-protocols xorg-server-xwayland scdoc hwdata`  
 - [Alpine](https://github.com/cage-kiosk/cage/blob/eaeab71ffa3ab5884df09c5664c00e368ca2585e/.github/workflows/main.yml#L26) `apk add build-base xcb-util-wm-dev libseat-dev clang git eudev-dev mesa-dev libdrm-dev libinput-dev libxkbcommon-dev pixman-dev wayland-dev meson wayland-protocols xwayland-dev scdoc-doc hwdata`
-- Fedora `dnf install gcc gnupg2 meson libwayland-server libxkbcommon-devel libdisplay-info libliftoff hwdata lcms2 libdrm libinput libseat vulkan libwayland-client pixman-devel wayland-devel wayland-protocols-devel libdrm-devel libxcb-devel xcb-util-renderutil-devel seatd libseat-devel systemd-devel git patch mesa-libEGL-devel mesa-libgbm-devel mesa-libGLES-devel vulkan-loader-devel`
+- Fedora `dnf install gcc gnupg2 meson libwayland-server libxkbcommon-devel libdisplay-info libliftoff hwdata lcms2 libdrm libinput libseat vulkan libwayland-client pixman-devel wayland-devel wayland-protocols-devel libdrm-devel libxcb-devel xcb-util-renderutil-devel seatd libseat-devel systemd-devel git mesa-libEGL-devel mesa-libgbm-devel mesa-libGLES-devel vulkan-loader-devel`
 - Ubuntu/Debian `sudo apt build-dep wlroots`
 
 > [!IMPORTANT]
@@ -84,46 +84,31 @@ Three branches are maintained:
 
 Choose the branch that matches the distribution you need to support.
 
-    git clone https://github.com/Xtr126/cage-xtmapper -b <branch>
+    git clone --recurse-submodules -b <branch> https://github.com/Xtr126/cage-xtmapper
     cd cage-xtmapper
     ./build.sh
 
-## Reproducible inputs and patch maintenance
+## Reproducible inputs and fork maintenance
 
-The build uses the checked-in Cage and wlroots source archives, wlroots dependency archives, Meson wrap files, and patch series. Verify the vendored archives from the repository root with:
+The build uses the pinned Cage and wlroots fork commits as submodules, plus wlroots dependency archives and Meson wrap files. Clone with `--recurse-submodules` as shown above. Source builds need both source checkouts available; the dependency archives remain included for offline dependency fallback.
+
+If the repository is already cloned, initialize the submodules with:
+
+    git submodule update --init --recursive
+
+The dependency archives are checked from the repository root with:
 
     sha256sum --check SHA256SUMS
 
-`SHA256SUMS` records the SHA-256 digest for each source and dependency archive. Update it whenever an archive is intentionally replaced, and review the corresponding version and source URL in the wrap files and this documentation.
+`SHA256SUMS` records the SHA-256 digest for each retained dependency archive. Update it whenever one of those archives is intentionally replaced, and review the corresponding version and source URL in the wrap files.
 
-The Cage patches in each maintained branch are exported from the corresponding development branch. Cage 0.3.0 development is maintained in [Xtr126/cage](https://github.com/Xtr126/cage), branch `codex/xtmapper-v0.3.0`, based on upstream Cage 0.3.0. The older 0.2 line uses branch `rebased-v0.2.0`, on Cage 0.2.0. Regenerate the 0.3 series from the `Xtr126/cage` checkout with:
+This branch pins Cage from [Xtr126/cage](https://github.com/Xtr126/cage), branch `codex/xtmapper-v0.3.0`, and wlroots from [Xtr126/wlroots-xtmapper](https://github.com/Xtr126/wlroots-xtmapper), branch `codex/xtmapper-v0.20.2`. The submodule entries pin exact commits; update them after committing fork changes:
 
-    cd /path/to/cage
-    git format-patch --output-directory /tmp/cage-xtmapper-patches 3783af4..codex/xtmapper-v0.3.0
+    git -C forks/cage switch codex/xtmapper-v0.3.0
+    git -C forks/wlroots-xtmapper switch codex/xtmapper-v0.20.2
+    git add forks/cage forks/wlroots-xtmapper
 
-The root-level `000*.patch` files and `cage-0.3.0.tar.gz` belong to the 0.3 line. Keep the 0.2 patch series on its own branch.
-
-The wlroots patches in this branch are maintained in [Xtr126/wlroots-xtmapper](https://github.com/Xtr126/wlroots-xtmapper), branch `codex/xtmapper-v0.20.2`. Regenerate them from the wlroots 0.20.2 tag:
-
-    cd /path/to/wlroots-xtmapper
-    git format-patch --output-directory /tmp/cage-xtmapper-wlroots-patches 0.20.2..codex/xtmapper-v0.20.2
-
-The `Xtr126/wlroots-xtmapper` fork also carries the 0.18.3 line on branch `codex/xtmapper-v0.18.3`. Keep each patch series with its matching source archive and branch. After changing archives, patches, wraps, or dependency inputs, remove the prepared `build/cage-*` source directory before rebuilding so the new inputs are applied.
-
-### Push the prepared branches to GitHub
-
-The commits are ready locally. Set the GitHub repositories as `origin` in each checkout and push the version branches:
-
-    cd /path/to/cage
-    git remote add origin https://github.com/Xtr126/cage.git
-    git push -u origin codex/xtmapper-v0.3.0
-
-    cd /path/to/wlroots-xtmapper
-    git remote add origin https://github.com/Xtr126/wlroots-xtmapper.git
-    git push -u origin codex/xtmapper-v0.20.2
-    git push -u origin codex/xtmapper-v0.18.3
-
-If `origin` already exists, update its URL with `git remote set-url origin <URL>` instead of adding it. Push each branch only after checking out that branch if you want to verify or continue its changes locally.
+Work in each checked-out fork, commit the changes there, then update this repository's gitlink with `git add`. The build assembles the pinned commits under `build/source/` and keeps Meson's build directory separate under `build/meson/`. Dependency archives and wrap files remain checked in for builds whose system libraries do not meet the required versions.
 
 Pull requests run archive checksum verification, ShellCheck, shell syntax checks, and mocked build and launcher checks. Release packaging runs separately for a version tag and attaches `cage-xtmapper-<tag>.tar` to a draft release for that tag. It does not replace an asset with the same name.
 
