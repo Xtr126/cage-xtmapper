@@ -1,0 +1,56 @@
+name: Validate v0.2.0 build
+
+on:
+  pull_request:
+    paths:
+      - 'build.sh'
+      - 'cage_xtmapper.sh'
+      - 'install_deps.sh'
+      - 'forks/**'
+      - '.gitmodules'
+      - 'wlroots_deps/**'
+      - 'meson_wrapfiles/**'
+      - 'tests/**'
+      - '.github/workflows/**'
+  push:
+    branches:
+      - v0.2.0
+    paths:
+      - 'build.sh'
+      - 'cage_xtmapper.sh'
+      - 'install_deps.sh'
+      - 'forks/**'
+      - '.gitmodules'
+      - 'wlroots_deps/**'
+      - 'meson_wrapfiles/**'
+      - 'tests/**'
+      - '.github/workflows/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install ShellCheck
+        run: sudo apt-get update && sudo apt-get install --yes shellcheck
+
+      - name: Check shell syntax and style
+        run: |
+          bash -n build.sh cage_xtmapper.sh install_deps.sh tests/*.sh
+          shellcheck build.sh install_deps.sh tests/*.sh
+
+      - name: Run mocked build checks
+        run: bash tests/test-build.sh
+
+      - name: Install build dependencies
+        run: ./install_deps.sh
+
+      - name: Build Cage and wlroots
+        run: ./build.sh
