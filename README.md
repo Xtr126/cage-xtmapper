@@ -78,7 +78,7 @@ To install from the downloaded tarball:
 > [!IMPORTANT]
 Three branches are maintained:
 
-- `v0.3.0` builds Cage 0.3.0 with wlroots 0.20.2. Ubuntu 26.04 is the supported CI and release build baseline for this branch. It needs Wayland 1.24+, wayland-protocols 1.47+, libdrm 2.4.129+, libxkbcommon 1.8+, and Pixman 0.46+. Use it for distributions whose system packages meet these versions; the build also includes pinned fallback sources for these libraries.
+- `v0.3.0` builds Cage 0.3.0 with wlroots 0.20.2. Ubuntu 26.04 is the supported CI and release build baseline for this branch. Ubuntu 24.04 compatibility is not guaranteed; use the older branch appropriate for your distribution. It needs Wayland 1.24+, wayland-protocols 1.47+, libdrm 2.4.129+, libxkbcommon 1.8+, and Pixman 0.46+. Use it for distributions whose system packages meet these versions; the build also includes pinned fallback sources for these libraries.
 - `v0.2.0` builds Cage 0.2.0 with wlroots 0.18.3 for distributions whose system libraries cannot support v0.3.0. See the [v0.2.0 compatibility and build instructions](https://github.com/Xtr126/cage-xtmapper/blob/v0.2.0/README.md).
 - `v0.1.5` builds Cage 0.1.5 with wlroots 0.17.x.
 
@@ -89,6 +89,8 @@ Choose the branch that matches the distribution you need to support.
     ./build.sh
 
 ## Reproducible inputs and fork maintenance
+
+For contribution and backport guidance, see [CONTRIBUTING.md](CONTRIBUTING.md). Contributor credits and provenance are listed in [CONTRIBUTORS.md](CONTRIBUTORS.md).
 
 The build uses the pinned Cage and wlroots fork commits as submodules, plus wlroots dependency archives and Meson wrap files. Clone with `--recurse-submodules` as shown above. Source builds need both source checkouts available; the dependency archives remain included for offline dependency fallback.
 
