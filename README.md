@@ -30,3 +30,9 @@ The pinned fork branches are listed in `.gitmodules`: Cage uses `rebased-v0.2.0`
 Run `./cage_xtmapper.sh` to start XtMapper in Waydroid. Options include `--window-width PIXELS`, `--window-height PIXELS`, `--refresh-mhz MHZ`, `--window-show-title-bar`, `--print-output-info`, `--adb` (use adb instead of Waydroid's sudo shell), and `--xtmapper-args ARG...` (pass remaining arguments to XtMapper). Use `--help` for the complete option list. Width, height, and refresh values must be positive integers.
 
 The launcher waits up to 120 seconds for Android to finish booting. Set `XTMAPPER_BOOT_WAIT_SECONDS` to a positive integer to change this limit.
+
+## Contributing and credits
+
+See the shared [contribution guidelines](https://github.com/Xtr126/cage-xtmapper/blob/v0.3.0/CONTRIBUTING.md)
+and [contributor credits](https://github.com/Xtr126/cage-xtmapper/blob/v0.3.0/CONTRIBUTORS.md)
+on the v0.3.0 branch. Keep backports adapted to this branch's build workflow.
