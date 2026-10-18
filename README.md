@@ -79,7 +79,7 @@ To install from the downloaded tarball:
 Three branches are maintained:
 
 - `v0.3.0` builds Cage 0.3.0 with wlroots 0.20.2. It needs Wayland 1.24+, wayland-protocols 1.47+, libdrm 2.4.129+, libxkbcommon 1.8+, and Pixman 0.46+. Use it for distributions whose system packages meet these versions; the build also includes pinned fallback sources for these libraries.
-- `v0.2.0` builds Cage 0.2.0 with wlroots 0.18.3.
+- `v0.2.0` builds Cage 0.2.0 with wlroots 0.18.3 for distributions whose system libraries cannot support v0.3.0. See the [v0.2.0 compatibility and build instructions](https://github.com/Xtr126/cage-xtmapper/blob/v0.2.0/README.md).
 - `v0.1.5` builds Cage 0.1.5 with wlroots 0.17.x.
 
 Choose the branch that matches the distribution you need to support.

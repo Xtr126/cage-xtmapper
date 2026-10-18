@@ -63,8 +63,8 @@ fi
 : > "$MOCK_LOG"
 (cd / && PATH="$root/bin:$PATH" "$root/build.sh" --dry-run >/dev/null)
 grep -q '^meson setup ' "$MOCK_LOG"
-! grep -q '^meson compile ' "$MOCK_LOG"
-! grep -q '^meson install ' "$MOCK_LOG"
+if grep -q '^meson compile ' "$MOCK_LOG"; then fail 'dry-run invoked compile'; fi
+if grep -q '^meson install ' "$MOCK_LOG"; then fail 'dry-run invoked install'; fi
 [[ -f "$root/build/source/cage-0.3.0/cage.c" ]] || fail 'Cage source was not assembled'
 [[ -f "$root/build/source/cage-0.3.0/subprojects/wlroots/wlroots.c" ]] || fail 'wlroots source was not placed under Cage subprojects'
 [[ -d "$root/build/source/cage-0.3.0/subprojects/wlroots/subprojects/packagefiles" ]] || fail 'dependency archive location is missing'
@@ -96,7 +96,7 @@ if PATH="$root/bin:$PATH" MESON_FAIL=compile "$root/build.sh" >"$tmp/out" 2>&1; 
     fail 'compile failure unexpectedly succeeded'
 fi
 grep -q '^meson compile ' "$MOCK_LOG"
-! grep -q '^meson install ' "$MOCK_LOG"
+if grep -q '^meson install ' "$MOCK_LOG"; then fail 'compile failure did not stop installation'; fi
 
 # A successful build installs the launcher script alongside the Meson binary.
 root="$tmp/success"
