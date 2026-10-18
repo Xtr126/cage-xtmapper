@@ -24,3 +24,9 @@ git submodule update --init --recursive
 The build assembles the pinned Cage and wlroots commits under `build/source/` and keeps Meson's build state under `build/meson/`. The dependency archives and wrap files remain in this branch for systems that need Meson fallbacks.
 
 The pinned fork branches are listed in `.gitmodules`: Cage uses `rebased-v0.2.0` and wlroots uses `codex/xtmapper-v0.18.3`. Commit fork changes before updating the matching parent gitlink.
+
+## Launcher
+
+Run `./cage_xtmapper.sh` to start XtMapper in Waydroid. Options include `--window-width PIXELS`, `--window-height PIXELS`, `--refresh-mhz MHZ`, `--window-show-title-bar`, `--print-output-info`, `--adb` (use adb instead of Waydroid's sudo shell), and `--xtmapper-args ARG...` (pass remaining arguments to XtMapper). Use `--help` for the complete option list. Width, height, and refresh values must be positive integers.
+
+The launcher waits up to 120 seconds for Android to finish booting. Set `XTMAPPER_BOOT_WAIT_SECONDS` to a positive integer to change this limit.
