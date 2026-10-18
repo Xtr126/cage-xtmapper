@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
+# Adapted from @SoufianoDev's dependency installer in PR #18,
+# incorporated by PR #25: https://github.com/Xtr126/cage-xtmapper/pull/18
+
 dry_run=false
 while (($#)); do
     case "$1" in
