@@ -10,17 +10,14 @@ permissions:
 
 jobs:
   package:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v4
         with:
-          submodules: recursive
+          submodules: true
 
       - name: Install build dependencies
-        run: |
-          sudo sed -i 's/^Types: deb$/Types: deb deb-src/' /etc/apt/sources.list.d/ubuntu.sources
-          sudo apt-get update
-          sudo apt-get build-dep --yes wlroots
+        run: sudo ./install_deps.sh
 
       - name: Build
         run: ./build.sh

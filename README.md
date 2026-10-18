@@ -78,7 +78,7 @@ To install from the downloaded tarball:
 > [!IMPORTANT]
 Three branches are maintained:
 
-- `v0.3.0` builds Cage 0.3.0 with wlroots 0.20.2. It needs Wayland 1.24+, wayland-protocols 1.47+, libdrm 2.4.129+, libxkbcommon 1.8+, and Pixman 0.46+. Use it for distributions whose system packages meet these versions; the build also includes pinned fallback sources for these libraries.
+- `v0.3.0` builds Cage 0.3.0 with wlroots 0.20.2. Ubuntu 26.04 is the supported CI and release build baseline for this branch. It needs Wayland 1.24+, wayland-protocols 1.47+, libdrm 2.4.129+, libxkbcommon 1.8+, and Pixman 0.46+. Use it for distributions whose system packages meet these versions; the build also includes pinned fallback sources for these libraries.
 - `v0.2.0` builds Cage 0.2.0 with wlroots 0.18.3 for distributions whose system libraries cannot support v0.3.0. See the [v0.2.0 compatibility and build instructions](https://github.com/Xtr126/cage-xtmapper/blob/v0.2.0/README.md).
 - `v0.1.5` builds Cage 0.1.5 with wlroots 0.17.x.
 
@@ -102,6 +102,13 @@ The dependency archives are checked from the repository root with:
 
 `SHA256SUMS` records the SHA-256 digest for each retained dependency archive. Update it whenever one of those archives is intentionally replaced, and review the corresponding version and source URL in the wrap files.
 
+To install host packages for a source build on Debian or Ubuntu, Fedora, Arch, or Alpine, run the optional helper yourself:
+
+    ./install_deps.sh --dry-run
+    sudo ./install_deps.sh
+
+Review the package list printed by `--dry-run` first. The installer is never run automatically by `build.sh`; it uses the detected distribution's package manager and reports unsupported distributions or package-manager failures.
+
 This branch pins Cage from [Xtr126/cage](https://github.com/Xtr126/cage), branch `codex/xtmapper-v0.3.0`, and wlroots from [Xtr126/wlroots-xtmapper](https://github.com/Xtr126/wlroots-xtmapper), branch `codex/xtmapper-v0.20.2`. The submodule entries pin exact commits; update them after committing fork changes:
 
     git -C forks/cage switch codex/xtmapper-v0.3.0
@@ -110,7 +117,7 @@ This branch pins Cage from [Xtr126/cage](https://github.com/Xtr126/cage), branch
 
 Work in each checked-out fork, commit the changes there, then update this repository's gitlink with `git add`. The build assembles the pinned commits under `build/source/` and keeps Meson's build directory separate under `build/meson/`. Dependency archives and wrap files remain checked in for builds whose system libraries do not meet the required versions.
 
-Pull requests run archive checksum verification, ShellCheck, shell syntax checks, and mocked build and launcher checks. Release packaging runs separately for a version tag and attaches `cage-xtmapper-<tag>.tar` to a draft release for that tag. It does not replace an asset with the same name.
+Pull requests run on Ubuntu 26.04, verify archive checksums, run ShellCheck and shell syntax checks, exercise the mocked installer/build/launcher checks, and compile Cage and wlroots. Release packaging uses the same Ubuntu 26.04 baseline and attaches `cage-xtmapper-<tag>.tar` to a draft release for that tag. It does not replace an asset with the same name.
 
 ### Install the built binary and the script to /usr/local/bin.  
 Run from within the cage-xtmapper directory after building:
