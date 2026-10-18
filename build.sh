@@ -115,7 +115,24 @@ elif [[ ! -d "$source_dir/subprojects/wlroots/subprojects/packagefiles" ]]; then
     fail "Prepared source tree is incomplete at $source_dir; remove it and rerun build.sh."
 fi
 
-meson_setup_args=(--buildtype=release -Ddefault_library=static -Dprefix=/usr/local)
+# Meson subproject core options can persist independently of the root build.
+# Set every wlroots project and available fallback explicitly so fresh setup
+# and reconfigure both build all embedded sources as release code.
+meson_setup_args=(
+    --buildtype=release
+    -Ddefault_library=static
+    -Dprefix=/usr/local
+    -Dwlroots:buildtype=release
+    -Dwayland:buildtype=release
+    -Dlibdrm:buildtype=release
+    -Dlibxkbcommon:buildtype=release
+    -Dpixman:buildtype=release
+    -Dwayland-protocols:buildtype=release
+    -Dlibdisplay-info:buildtype=release
+    -Dedid-decode:buildtype=release
+    -Dlibliftoff:buildtype=release
+    -Dseatd:buildtype=release
+)
 if [[ -f "$meson_build_dir/meson-private/coredata.dat" ]]; then
     meson setup --reconfigure "$meson_build_dir" "$source_dir" "${meson_setup_args[@]}"
 else

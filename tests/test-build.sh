@@ -63,6 +63,10 @@ fi
 : > "$MOCK_LOG"
 (cd / && PATH="$root/bin:$PATH" "$root/build.sh" --dry-run >/dev/null)
 grep -q '^meson setup ' "$MOCK_LOG"
+grep -q '^meson setup .* --buildtype=release ' "$MOCK_LOG" || fail 'fresh Meson setup did not request release buildtype'
+for subproject in wlroots wayland libdrm libxkbcommon pixman wayland-protocols libdisplay-info edid-decode libliftoff seatd; do
+    grep -q -- "-D$subproject:buildtype=release" "$MOCK_LOG" || fail "fresh Meson setup did not set $subproject buildtype to release"
+done
 if grep -q '^meson compile ' "$MOCK_LOG"; then fail 'dry-run invoked compile'; fi
 if grep -q '^meson install ' "$MOCK_LOG"; then fail 'dry-run invoked install'; fi
 [[ -f "$root/build/source/cage-0.3.0/cage.c" ]] || fail 'Cage source was not assembled'
@@ -70,6 +74,16 @@ if grep -q '^meson install ' "$MOCK_LOG"; then fail 'dry-run invoked install'; f
 [[ -d "$root/build/source/cage-0.3.0/subprojects/wlroots/subprojects/packagefiles" ]] || fail 'dependency archive location is missing'
 [[ ! -e "$root/build/source/cage-0.3.0/.git" ]] || fail 'staged source unexpectedly contains Git metadata'
 grep -q "setup $root/build/meson $root/build/source/cage-0.3.0" "$MOCK_LOG" || fail 'Meson build directory is not outside the staged source tree'
+
+# Reconfiguration must reset an existing debug build to release too.
+mkdir -p "$root/build/meson/meson-private"
+touch "$root/build/meson/meson-private/coredata.dat"
+: > "$MOCK_LOG"
+PATH="$root/bin:$PATH" "$root/build.sh" --dry-run >/dev/null
+grep -q '^meson setup --reconfigure .* --buildtype=release ' "$MOCK_LOG" || fail 'Meson reconfigure did not request release buildtype'
+for subproject in wlroots wayland libdrm libxkbcommon pixman wayland-protocols libdisplay-info edid-decode libliftoff seatd; do
+    grep -q -- "-D$subproject:buildtype=release" "$MOCK_LOG" || fail "Meson reconfigure did not set $subproject buildtype to release"
+done
 
 # A changed fork commit must first be recorded by the parent gitlink.
 printf 'updated fixture source\n' > "$root/forks/cage/cage.c"
