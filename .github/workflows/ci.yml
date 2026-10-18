@@ -36,7 +36,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          submodules: recursive
+          submodules: true
 
       - name: Install ShellCheck
         run: sudo apt-get update && sudo apt-get install --yes shellcheck
