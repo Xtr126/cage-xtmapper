@@ -1,93 +1,26 @@
-# Usage
-Download pre-built binaries from releases or build from source (recommended) as explained below.
+# cage-xtmapper v0.2.0
 
-Run the [cage_xtmapper.sh](./cage_xtmapper.sh) script as the regular user:  
+This compatibility branch builds Cage 0.2.0 with wlroots 0.18.3 for distributions whose system libraries do not meet the v0.3.0 requirements. Use this branch for older systems that cannot build the default branch.
 
-    cage_xtmapper.sh
+See the [v0.3.0 README](https://github.com/Xtr126/cage-xtmapper/blob/v0.3.0/README.md) for common usage, installation, and troubleshooting guidance. The v0.3.0 branch is the default branch and contains the main project documentation.
 
+## Build
 
-# Features
-- Change refresh rate or FPS of waydroid
-https://xtr126.github.io/XtMapper-docs/waydroid/2-fps/
-- Touchpad input
-https://xtr126.github.io/XtMapper-docs/waydroid/3-touchpad/
-- Customize window
-https://xtr126.github.io/XtMapper-docs/waydroid/4-window-customization/
-- How to fullscreen cage-xtmapper
-https://xtr126.github.io/XtMapper-docs/waydroid/5-fullscreen/
-- Disable colored logcat output in the terminal
-https://xtr126.github.io/XtMapper-docs/waydroid/6-disable-logging/
-- Passthrough mouse input to waydroid instead of to XtMapper  
-Use F10 or any other key defined in  [togglekey.h](https://github.com/Xtr126/cage/blob/master/togglekey.h) to toggle between XtMapper or Waydroid handling mouse input.  
+Install the build dependencies, clone with the pinned fork submodules, and build:
 
-# Some tips
-### SteamOS session/ Bazzite steam gaming mode
-In desktop mode, go to Start menu > System, then right click on Konsole/Terminal and add to steam. Now you can launch Terminal or Konsole in Steam and run cage_xtmapper.sh.
+```sh
+git clone --recurse-submodules -b v0.2.0 https://github.com/Xtr126/cage-xtmapper
+cd cage-xtmapper
+./install_deps.sh
+./build.sh
+```
 
-### Using cage's DRM backend
-Remove 0007-fix-build-Remove-all-session-dependent-code.patch and build. Then start cage_xtmapper.sh from a TTY.
+For an existing checkout, initialize the pinned source trees with:
 
-### Fix invisible cursor issue
-Enable cursor on subsurface if cursor is invisible:
-  
-    waydroid prop set persist.waydroid.cursor_on_subsurface true
+```sh
+git submodule update --init --recursive
+```
 
-> [!NOTE]
-cage v0.1.5 has a two cursors on-screen issue.
+The build assembles the pinned Cage and wlroots commits under `build/source/` and keeps Meson's build state under `build/meson/`. The dependency archives and wrap files remain in this branch for systems that need Meson fallbacks.
 
-### Disable fake touch (persist.waydroid.fake_touch)
-If you have enabled fake touch it might [interfere with mouse movement](https://github.com/Xtr126/XtMapper/discussions/184). Clear it by running:
-    
-    waydroid prop set persist.waydroid.fake_touch ""
-
-
-
-
-# Download and install
-To download and install from [pre-builts](https://github.com/Xtr126/cage-xtmapper/releases), paste the following into a terminal.
-
-### Step 1
-Download v0.2.0 - For modern distros with wlroots v0.18 or newer - Ubuntu 25.04 (plucky), Debian Sid, Arch, Fedora, Alpine
-
-    curl -fOL --retry 3 --retry-delay 3  "https://github.com/Xtr126/cage-xtmapper/releases/latest/download/cage-xtmapper-v0.2.0.tar"
-
-Download v0.1.5 - For slightly older distros with wlroots v0.17.x - Ubuntu 24.04 (noble), Debian 13 (Trixie)
-
-    curl -fOL --retry 3 --retry-delay 3  "https://github.com/Xtr126/cage-xtmapper/releases/latest/download/cage-xtmapper-v0.1.5.tar"
-
-### Step 2
-To install from the downloaded tarball:
-
-    tar xvf cage-xtmapper*.tar
-    cd usr/local/bin
-    sudo install -Dm755 ./cage_xtmapper /usr/local/bin/
-    sudo install -Dm755 ./cage_xtmapper.sh /usr/local/bin/
-    
-# Build 
-**Cage dependencies**  
-- [Arch](https://github.com/cage-kiosk/cage/blob/eaeab71ffa3ab5884df09c5664c00e368ca2585e/.github/workflows/main.yml#L32) `pacman -Syu xcb-util-wm seatd git clang meson libinput libdrm mesa libxkbcommon wayland wayland-protocols xorg-server-xwayland scdoc hwdata`  
-- [Alpine](https://github.com/cage-kiosk/cage/blob/eaeab71ffa3ab5884df09c5664c00e368ca2585e/.github/workflows/main.yml#L26) `apk add build-base xcb-util-wm-dev libseat-dev clang git eudev-dev mesa-dev libdrm-dev libinput-dev libxkbcommon-dev pixman-dev wayland-dev meson wayland-protocols xwayland-dev scdoc-doc hwdata`
-- Fedora `dnf install gcc gnupg2 meson libwayland-server libxkbcommon-devel libdisplay-info libliftoff hwdata lcms2 libdrm libinput libseat vulkan libwayland-client pixman-devel wayland-devel wayland-protocols-devel libdrm-devel libxcb-devel xcb-util-renderutil-devel seatd libseat-devel systemd-devel git patch mesa-libEGL-devel mesa-libgbm-devel mesa-libGLES-devel vulkan-loader-devel`
-- Ubuntu/Debian `sudo apt build-dep wlroots`
-
-> [!IMPORTANT]
-Two branches are maintained.  
-v0.2.0 - For modern distros with wlroots v0.18 or newer - Ubuntu 25.04 (plucky), Debian Sid, Arch, Fedora, Alpine   
-v0.1.5 - For slightly older distros with wlroots v0.17.x - Ubuntu 24.04 (noble), Debian 13 (Trixie)
-
-Replace `<branch>` below with either v0.2.0 or v0.1.5
-
-    git clone https://github.com/Xtr126/cage-xtmapper -b <branch>
-    cd cage-xtmapper
-    ./build.sh
-If build fails, check if upstream cage and wlroots source code can build normally on your system:  
-Cage: https://github.com/cage-kiosk/cage  
-wlroots: https://gitlab.freedesktop.org/wlroots
-
-### Install the built binary and the script to /usr/local/bin.  
-Run from within the cage-xtmapper directory after building:
-
-    cd build/installed/usr/local/bin/
-    sudo install -Dm755 ./cage_xtmapper /usr/local/bin/
-    sudo install -Dm755 ./cage_xtmapper.sh /usr/local/bin/
-
+The pinned fork branches are listed in `.gitmodules`: Cage uses `rebased-v0.2.0` and wlroots uses `codex/xtmapper-v0.18.3`. Commit fork changes before updating the matching parent gitlink.

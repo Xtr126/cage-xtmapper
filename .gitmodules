@@ -1,0 +1,8 @@
+[submodule "forks/cage"]
+	path = forks/cage
+	url = https://github.com/Xtr126/cage.git
+	branch = rebased-v0.2.0
+[submodule "forks/wlroots-xtmapper"]
+	path = forks/wlroots-xtmapper
+	url = https://github.com/Xtr126/wlroots-xtmapper.git
+	branch = codex/xtmapper-v0.18.3

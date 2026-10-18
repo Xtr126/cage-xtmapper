@@ -1,0 +1,37 @@
+name: Package v0.2.0 release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Install build dependencies
+        run: ./install_deps.sh
+
+      - name: Build
+        run: ./build.sh
+
+      - name: Package versioned archive
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: tar -C build/installed -pcf "cage-xtmapper-${RELEASE_TAG}.tar" usr
+
+      - name: Attach archive to the matching release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          files: cage-xtmapper-${{ github.ref_name }}.tar
+          draft: true
+          fail_on_unmatched_files: true
+          overwrite_files: false
