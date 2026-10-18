@@ -3,6 +3,7 @@ set -Eeuo pipefail
 
 # Optional helper for installing the host packages needed to build this branch.
 # It is intentionally never invoked by build.sh.
+# Adapted from @SoufianoDev's installer contribution (PR #18, incorporated in PR #25).
 dry_run=false
 while (($#)); do
     case "$1" in
@@ -25,9 +26,9 @@ distro=$(awk -F= '$1 == "ID" {gsub(/["\047]/, "", $2); print tolower($2); exit}'
 distro_like=$(awk -F= '$1 == "ID_LIKE" {gsub(/["\047]/, "", $2); print tolower($2); exit}' "$os_release")
 
 debian_deps=(build-essential git meson ninja-build pkg-config libwayland-dev libseat-dev libxkbcommon-dev libpixman-1-dev libudev-dev libinput-dev libdrm-dev libdisplay-info-dev libliftoff-dev hwdata scdoc libgbm-dev libgles-dev libegl-dev wayland-protocols)
-fedora_deps=(gcc git meson ninja-build pkgconf-pkg-config wayland-devel libxkbcommon-devel pixman-devel libinput-devel libdrm-devel mesa-libEGL-devel mesa-libGLES-devel mesa-libgbm-devel seatd-devel libdisplay-info-devel libliftoff-devel hwdata scdoc wayland-protocols-devel)
-arch_deps=(base-devel git meson ninja pkgconf wayland wayland-protocols libxkbcommon pixman libinput libdrm mesa seatd scdoc hwdata libdisplay-info libliftoff)
-alpine_deps=(build-base git meson ninja pkgconf wayland-dev libxkbcommon-dev pixman-dev libinput-dev libdrm-dev mesa-dev libseat-dev scdoc hwdata wayland-protocols)
+fedora_deps=(gcc git meson ninja-build pkgconf-pkg-config wayland-devel libxkbcommon-devel pixman-devel libinput-devel libdrm-devel mesa-libEGL-devel mesa-libGLES-devel mesa-libgbm-devel seatd-devel systemd-devel libdisplay-info-devel libliftoff-devel hwdata scdoc wayland-protocols-devel)
+arch_deps=(base-devel git meson ninja pkgconf wayland wayland-protocols libxkbcommon pixman libinput libdrm mesa seatd systemd-libs scdoc hwdata libdisplay-info libliftoff)
+alpine_deps=(build-base git meson ninja pkgconf wayland-dev libxkbcommon-dev pixman-dev libinput-dev libdrm-dev mesa-dev libseat-dev eudev-dev scdoc hwdata wayland-protocols)
 
 update_cmd=() install_cmd=() packages=()
 if [[ "$distro" == ubuntu || "$distro" == debian || " $distro_like " == *' debian '* ]]; then

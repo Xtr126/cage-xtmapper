@@ -53,6 +53,7 @@ grep -q 'Packages:.*base-devel' "$tmp/out" || fail 'Arch packages were not selec
 write_os alpine
 OS_RELEASE_FILE="$tmp/os-release" "$repo/install_deps.sh" --dry-run > "$tmp/out"
 grep -q 'Packages:.*build-base' "$tmp/out" || fail 'Alpine packages were not selected'
+grep -q 'Packages:.*eudev-dev' "$tmp/out" || fail 'Alpine udev development headers were omitted'
 write_os linux 'debian ubuntu'
 OS_RELEASE_FILE="$tmp/os-release" "$repo/install_deps.sh" --dry-run > "$tmp/out"
 grep -q 'Detected linux.*build-essential' "$tmp/out" || fail 'ID_LIKE Debian family was not recognized'
@@ -64,22 +65,42 @@ if OS_RELEASE_FILE="$tmp/os-release" "$repo/install_deps.sh" --dry-run > "$tmp/o
 grep -q 'Unsupported distribution: gentoo' "$tmp/out" || fail 'unsupported distribution was not explained'
 [[ ! -s "$MOCK_LOG" ]] || fail 'unsupported distribution ran a package manager'
 
-# A normal install uses privilege escalation for non-root callers.
-if command -v runuser >/dev/null 2>&1 && [[ $(id -u) == 0 ]]; then
-    chmod 755 "$tmp" "$tmp/bin"
-    chmod 644 "$tmp/os-release"
-    write_os ubuntu
-    chmod 644 "$tmp/os-release"
+# A normal install uses privilege escalation for non-root callers. Exercise it
+# as the current user on ordinary hosts, or via runuser when this test is root.
+write_os ubuntu
+test_path="$tmp/bin"
+test_log="$MOCK_LOG"
+if ((EUID == 0)); then
+    if command -v runuser >/dev/null 2>&1; then
+        chmod 755 "$tmp" "$tmp/bin"
+        chmod 644 "$tmp/os-release"
+        chown "$(id -u nobody):$(id -g nobody)" "$MOCK_LOG"
+        test_path="$tmp/bin:/usr/bin:/bin"
+        run_as_test_user() { runuser -u nobody -- env PATH="$test_path" MOCK_LOG="$test_log" OS_RELEASE_FILE="$tmp/os-release" "$@"; }
+    else
+        echo 'SKIP: non-root privilege assertions (root user and runuser unavailable)'
+        test_path=
+    fi
+else
+    run_as_test_user() { env PATH="$test_path:$PATH" MOCK_LOG="$test_log" OS_RELEASE_FILE="$tmp/os-release" "$@"; }
+fi
+
+if [[ -n "$test_path" ]]; then
     : > "$MOCK_LOG"
-    chown "$(id -u nobody):$(id -g nobody)" "$MOCK_LOG"
-    runuser -u nobody -- env PATH="$tmp/bin:/usr/bin:/bin" MOCK_LOG="$MOCK_LOG" OS_RELEASE_FILE="$tmp/os-release" "$repo/install_deps.sh" > "$tmp/out"
+    run_as_test_user "$repo/install_deps.sh" > "$tmp/out"
     grep -q '^sudo apt-get update' "$MOCK_LOG" || fail 'non-root caller did not use sudo for update'
     grep -q '^sudo apt-get install' "$MOCK_LOG" || fail 'non-root caller did not use sudo for install'
     : > "$MOCK_LOG"
     mkdir -p "$tmp/no-sudo"
+    chmod 755 "$tmp/no-sudo"
     ln -sf /usr/bin/bash "$tmp/no-sudo/bash"
     ln -sf /usr/bin/awk "$tmp/no-sudo/awk"
-    if runuser -u nobody -- env PATH="$tmp/no-sudo" MOCK_LOG="$MOCK_LOG" OS_RELEASE_FILE="$tmp/os-release" "$repo/install_deps.sh" > "$tmp/out" 2>&1; then fail 'non-root install without sudo succeeded'; fi
+    if ((EUID == 0)); then
+        chown -R "$(id -u nobody):$(id -g nobody)" "$tmp/no-sudo"
+        runuser -u nobody -- env PATH="$tmp/no-sudo" MOCK_LOG="$MOCK_LOG" OS_RELEASE_FILE="$tmp/os-release" "$repo/install_deps.sh" > "$tmp/out" 2>&1 && fail 'non-root install without sudo succeeded'
+    else
+        PATH="$tmp/no-sudo" MOCK_LOG="$MOCK_LOG" OS_RELEASE_FILE="$tmp/os-release" "$repo/install_deps.sh" > "$tmp/out" 2>&1 && fail 'non-root install without sudo succeeded'
+    fi
     grep -q 'Root privileges or sudo are required' "$tmp/out" || fail 'missing sudo error was not explained'
 fi
 
