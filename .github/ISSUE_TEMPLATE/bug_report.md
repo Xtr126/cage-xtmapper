@@ -20,6 +20,9 @@ Steps to reproduce the behavior:
 **Expected behavior**
 A clear and concise description of what you expected to happen.
 
+**Debug build and logs**
+If this is a runtime or build issue and you can build from source, try reproducing it with `./build.sh --debug` from the `v0.3.0` checkout. Say whether the debug build changes the behavior, and include the relevant terminal output. See [BUILDING.md](../../BUILDING.md#debug-builds) for details.
+
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
 
