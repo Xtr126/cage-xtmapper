@@ -128,3 +128,12 @@ Run from within the cage-xtmapper directory after building:
     sudo install -Dm755 ./cage_xtmapper /usr/local/bin/
     sudo install -Dm755 ./cage_xtmapper.sh /usr/local/bin/
 
+
+### Development builds
+
+`./build.sh` builds Cage and its embedded wlroots in release mode. Use
+`./build.sh --debug` for a debug build, or `./build.sh --debug --dry-run` to
+configure it without compiling or installing. Running `./build.sh` again
+restores release mode. Release builds log errors by default, keeping renderer
+startup and extension lists quiet. Cage's runtime `-D` flag enables verbose
+logging even in a release build; debug builds enable it by default.

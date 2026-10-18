@@ -3,13 +3,15 @@ set -Eeuo pipefail
 
 usage() {
     cat <<'USAGE'
-Usage: build.sh [--dry-run]
+Usage: build.sh [--dry-run] [--debug]
 
+  --debug    Build Cage and wlroots in debug mode (default: release).
   --dry-run  Prepare sources and configure Meson, but skip compile and install.
 USAGE
 }
 
 dry_run=false
+build_type=release
 while (($#)); do
     case "$1" in
         --dry-run)
@@ -19,6 +21,14 @@ while (($#)); do
                 exit 2
             fi
             dry_run=true
+            ;;
+        --debug)
+            if [[ "$build_type" == debug ]]; then
+                echo "--debug may only be specified once" >&2
+                usage >&2
+                exit 2
+            fi
+            build_type=debug
             ;;
         -h|--help)
             usage
@@ -115,23 +125,13 @@ elif [[ ! -d "$source_dir/subprojects/wlroots/subprojects/packagefiles" ]]; then
     fail "Prepared source tree is incomplete at $source_dir; remove it and rerun build.sh."
 fi
 
-# Meson subproject core options can persist independently of the root build.
-# Set every wlroots project and available fallback explicitly so fresh setup
-# and reconfigure both build all embedded sources as release code.
+# Set the root and scoped wlroots options together, including when switching
+# modes in an existing Meson configuration.
 meson_setup_args=(
-    --buildtype=release
+    "--buildtype=$build_type"
     -Ddefault_library=static
     -Dprefix=/usr/local
-    -Dwlroots:buildtype=release
-    -Dwayland:buildtype=release
-    -Dlibdrm:buildtype=release
-    -Dlibxkbcommon:buildtype=release
-    -Dpixman:buildtype=release
-    -Dwayland-protocols:buildtype=release
-    -Dlibdisplay-info:buildtype=release
-    -Dedid-decode:buildtype=release
-    -Dlibliftoff:buildtype=release
-    -Dseatd:buildtype=release
+    "-Dwlroots:buildtype=$build_type"
 )
 if [[ -f "$meson_build_dir/meson-private/coredata.dat" ]]; then
     meson setup --reconfigure "$meson_build_dir" "$source_dir" "${meson_setup_args[@]}"
