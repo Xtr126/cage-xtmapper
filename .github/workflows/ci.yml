@@ -44,10 +44,13 @@ jobs:
       - name: Check shell syntax and style
         run: |
           bash -n build.sh cage_xtmapper.sh install_deps.sh tests/*.sh
-          shellcheck build.sh install_deps.sh tests/*.sh
+          shellcheck build.sh cage_xtmapper.sh install_deps.sh tests/*.sh
 
       - name: Run mocked build checks
         run: bash tests/test-build.sh
+
+      - name: Run mocked launcher checks
+        run: bash tests/test-launcher.sh
 
       - name: Install build dependencies
         run: ./install_deps.sh
