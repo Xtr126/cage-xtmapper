@@ -134,5 +134,6 @@ Run from within the cage-xtmapper directory after building:
 `./build.sh` builds Cage and its embedded wlroots in release mode. Use
 `./build.sh --debug` for a debug build, or `./build.sh --debug --dry-run` to
 configure it without compiling or installing. Running `./build.sh` again
-restores release mode. Cage's runtime `-D` flag enables debug logging even in
-a release build.
+restores release mode. Release builds log errors by default, keeping renderer
+startup and extension lists quiet. Cage's runtime `-D` flag enables verbose
+logging even in a release build; debug builds enable it by default.

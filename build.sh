@@ -125,8 +125,8 @@ elif [[ ! -d "$source_dir/subprojects/wlroots/subprojects/packagefiles" ]]; then
     fail "Prepared source tree is incomplete at $source_dir; remove it and rerun build.sh."
 fi
 
-# Cage passes its build type to wlroots on first configuration. Also set the
-# scoped option here so switching modes resets an existing wlroots configuration.
+# Set the root and scoped wlroots options together, including when switching
+# modes in an existing Meson configuration.
 meson_setup_args=(
     "--buildtype=$build_type"
     -Ddefault_library=static
