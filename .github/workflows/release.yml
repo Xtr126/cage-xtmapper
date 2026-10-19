@@ -2,8 +2,8 @@ name: Package v0.2.0 release
 
 on:
   push:
-    tags:
-      - 'v*'
+    paths:
+      - '**.yml'
 
 permissions:
   contents: write
@@ -23,15 +23,13 @@ jobs:
         run: ./build.sh
 
       - name: Package versioned archive
-        env:
-          RELEASE_TAG: ${{ github.ref_name }}
-        run: tar -C build/installed -pcf "cage-xtmapper-${RELEASE_TAG}.tar" usr
+        run: tar -C build/installed -pcf "cage-xtmapper-v0.2.0.tar" usr
 
       - name: Attach archive to the matching release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref_name }}
-          files: cage-xtmapper-${{ github.ref_name }}.tar
+          tag_name: v20261019
+          files: cage-xtmapper-v0.2.0.tar
           draft: true
           fail_on_unmatched_files: true
           overwrite_files: false
